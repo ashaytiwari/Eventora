@@ -3,16 +3,7 @@ import React from 'react';
 import ExploreBtn from '@/components/exploreBtn/ExploreBtn';
 import EventCard from '@/components/eventCard/EventCard';
 
-const events = [
-  {
-    image: '/images/event1.png',
-    title: 'Event 1'
-  },
-  {
-    image: '/images/event2.png',
-    title: 'Event 2'
-  },
-];
+import { events } from '@/lib/constants/events';
 
 function Page() {
 
