@@ -1,0 +1,349 @@
+# Eventora - Authentication & Authorization
+
+## Authentication Technology
+
+Eventora uses:
+
+* Next.js
+* Auth.js (NextAuth)
+* MongoDB
+* JWT Session Strategy
+
+Supported authentication methods:
+
+* Email & Password (Credentials Provider)
+* Google Sign-In (Google Provider)
+
+---
+
+# User Roles
+
+## Super Admin
+
+* Created manually by the system.
+* Manages users, organizers, events, and platform settings.
+
+## Event Organizer
+
+* Created by Super Admin.
+* Receives onboarding email with temporary password.
+* Can create and manage events.
+
+## Event Attendee
+
+* Self-registration allowed.
+* Can browse and register for events.
+
+---
+
+# Authentication Providers
+
+A user can have one or more providers linked.
+
+Examples:
+
+```json
+{
+  "providers": ["credentials"]
+}
+```
+
+```json
+{
+  "providers": ["google"]
+}
+```
+
+```json
+{
+  "providers": ["credentials", "google"]
+}
+```
+
+---
+
+# User Registration
+
+## Event Attendee
+
+Supported methods:
+
+### Email & Password
+
+Required fields:
+
+* First Name
+* Last Name
+* Email
+* Password
+
+After registration:
+
+```text
+emailVerified = false
+```
+
+Verification email is sent.
+
+User must verify email before logging in.
+
+---
+
+### Google Sign-In
+
+User authenticates with Google.
+
+System:
+
+1. Verifies Google ID Token
+2. Creates user account if necessary
+3. Stores:
+
+   * Email
+   * First Name
+   * Last Name
+   * Google ID (sub)
+
+Google accounts are automatically considered verified:
+
+```text
+emailVerified = true
+```
+
+---
+
+# Event Organizer Onboarding
+
+1. Super Admin creates organizer account.
+2. System generates temporary password.
+3. User receives onboarding email.
+4. User logs in.
+5. User changes password on first login.
+
+---
+
+# Email Verification
+
+Applies only to Credentials-based registration.
+
+## Flow
+
+```text
+Register
+    ↓
+Generate Verification Token
+    ↓
+Send Verification Email
+    ↓
+User Clicks Link
+    ↓
+Verify Token
+    ↓
+emailVerified = true
+```
+
+Unverified users cannot log in.
+
+---
+
+# Forgot Password
+
+Applicable only when Credentials provider is linked.
+
+## Flow
+
+```text
+Forgot Password
+    ↓
+Generate Reset Token
+    ↓
+Send Reset Email
+    ↓
+User Opens Reset Link
+    ↓
+Set New Password
+    ↓
+Invalidate Token
+```
+
+After successful reset:
+
+* Password is updated
+* Existing reset token becomes invalid
+
+---
+
+# Google Authentication
+
+Frontend never sends email directly for authentication.
+
+Authentication flow:
+
+```text
+Google Sign-In
+    ↓
+Receive Google ID Token
+    ↓
+Backend Verifies Token
+    ↓
+Extract User Information
+    ↓
+Login / Create Account
+```
+
+Stored Google data:
+
+```text
+googleId
+email
+firstname
+lastname
+```
+
+Google access tokens and refresh tokens are not stored.
+
+---
+
+# Account Linking
+
+If an existing user signs in using another provider with the same email:
+
+Example:
+
+```text
+john@example.com
+```
+
+Current providers:
+
+```text
+credentials
+```
+
+User signs in with Google.
+
+Result:
+
+```text
+credentials + google
+```
+
+No duplicate account is created.
+
+---
+
+# User Status
+
+Supported statuses:
+
+```text
+active
+suspended
+```
+
+### Active
+
+User can access the platform.
+
+### Suspended
+
+User login is blocked.
+
+---
+
+# Password Storage
+
+Passwords are hashed using:
+
+```text
+bcrypt
+```
+
+Plain text passwords are never stored.
+
+---
+
+# Authorization (RBAC)
+
+Role-Based Access Control is enforced using middleware and server-side checks.
+
+### Admin Routes
+
+```text
+/admin/*
+```
+
+Allowed:
+
+```text
+super_admin
+```
+
+### Organizer Routes
+
+```text
+/organizer/*
+```
+
+Allowed:
+
+```text
+event_organizer
+```
+
+### Attendee Routes
+
+```text
+/profile
+/my-events
+```
+
+Allowed:
+
+```text
+event_attendee
+```
+
+---
+
+# Session Management
+
+Auth.js uses JWT-based sessions.
+
+Session data contains:
+
+```json
+{
+  "id": "user_id",
+  "email": "user@example.com",
+  "role": "event_attendee"
+}
+```
+
+Stored in secure HTTP-only cookies.
+
+---
+
+# Protected Request Flow
+
+```text
+Request
+    ↓
+Validate Session
+    ↓
+Check User Status
+    ↓
+Check User Role
+    ↓
+Allow / Deny Access
+```
+
+---
+
+# Future Enhancements
+
+* Multi-Factor Authentication (MFA)
+* Apple Sign-In
+* GitHub Sign-In
+* Device Management
+* Login Activity History
