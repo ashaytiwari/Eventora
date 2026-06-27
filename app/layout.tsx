@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import { Schibsted_Grotesk, Martian_Mono, Geist } from "next/font/google";
 
-import { cn } from "@/lib/utils/common";
 import LightRays from "@/components/lightRays/LightRays";
+import Navbar from "@/components/navbar/Navbar";
+
+import { cn } from "@/lib/utils/common";
 
 import "./globals.css";
-import Navbar from "@/components/navbar/Navbar";
+import "react-loading-skeleton/dist/skeleton.css";
 
 const geist = Geist({ subsets: ['latin'], variable: '--font-sans' });
 
