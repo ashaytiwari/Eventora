@@ -175,7 +175,7 @@ After successful reset:
 
 # Google Authentication
 
-Frontend never sends email directly for authentication.
+Frontend never sends email address directly for authentication.
 
 Authentication flow:
 
@@ -343,7 +343,5 @@ Allow / Deny Access
 # Future Enhancements
 
 * Multi-Factor Authentication (MFA)
-* Apple Sign-In
-* GitHub Sign-In
 * Device Management
 * Login Activity History

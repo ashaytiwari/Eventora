@@ -60,11 +60,12 @@ const UserSchema = new Schema<IUser>(
       ref: 'User',
       default: null,
     },
-    providers: {
-      type: [String],
-      enum: Object.keys(AuthProvider),
-      default: [AuthProvider.CREDENTIALS],
-    },
+    providers: [
+      {
+        type: String,
+        enum: Object.values(AuthProvider),
+      },
+    ],
     googleId: {
       type: String,
       unique: true,
