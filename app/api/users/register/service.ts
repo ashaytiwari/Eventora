@@ -1,5 +1,3 @@
-import { RegisterDto } from "@/app/api/users/register/register.dto";
-
 import {
   AuthProvider,
   errorCodes,
@@ -9,9 +7,10 @@ import {
 } from "@/lib/constants";
 import { APIError, hashPassword } from "@/lib/utils";
 
-import { userRepository } from "@/repositories/UserRepository";
+import { userRepository } from "../UserRepository";
+import { RegisterDto } from "./register.dto";
 
-export class AuthService {
+export class RegisterService {
 
   async register(data: RegisterDto) {
 
@@ -37,4 +36,4 @@ export class AuthService {
 
 }
 
-export const authService = new AuthService();
+export const registerService = new RegisterService();
