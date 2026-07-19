@@ -1,8 +1,9 @@
-import { NextResponse } from "next/server";
+import { httpStatusCodes, serverMessages } from "@/lib/constants";
 
-import { errorCodes, httpStatusCodes, serverMessages } from "@/lib/constants";
+import { APIError } from "@/lib/utils/apiError";
+import { ApiResponse } from "@/lib/utils/apiResponse";
 import { connectDB } from "@/lib/utils/db";
-import { zodValidationParser } from "@/lib/utils/common";
+import { formatZodErrors } from "@/lib/utils/zod";
 
 import { authService } from "@/services/AuthService";
 
@@ -17,56 +18,22 @@ export async function POST(req: Request) {
     const validationResult = registerSchema.safeParse(body);
 
     if (!validationResult.success) {
-      return NextResponse.json(
-        {
-          success: false,
-          message: serverMessages.validationError,
-          issues: zodValidationParser(validationResult)
-        },
-        {
-          status: httpStatusCodes.BAD_REQUEST,
-        }
-      );
+      return ApiResponse.validation(formatZodErrors(validationResult as any));
     }
 
     const validated = validationResult.data;
 
     await authService.register(validated);
 
-    return NextResponse.json(
-      {
-        success: true,
-        message: serverMessages.users.register.success,
-      },
-      {
-        status: httpStatusCodes.CREATED_SUCCESSFULLY,
-      }
-    );
+    return ApiResponse.success(undefined, serverMessages.users.register.success, httpStatusCodes.CREATED_SUCCESSFULLY)
 
   } catch (error: any) {
 
-    if (error.message === errorCodes.EMAIL_ALREADY_EXISTS) {
-
-      return NextResponse.json(
-        {
-          success: false,
-          message: serverMessages.users.register.emailAlreadyRegistered
-        },
-        {
-          status: httpStatusCodes.DUPLICATE_ENTRY,
-        }
-      );
-
+    console.log(error);
+    if (error instanceof APIError) {
+      return ApiResponse.error(error.message, error.statusCode);
     }
 
-    return NextResponse.json(
-      {
-        success: false,
-        message: error.message,
-      },
-      {
-        status: httpStatusCodes.BAD_REQUEST,
-      }
-    );
+    return ApiResponse.error(error);
   }
 }

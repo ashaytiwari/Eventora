@@ -1,9 +1,15 @@
-import { RegisterDto } from "../app/api/users/register/register.dto";
+import { RegisterDto } from "@/app/api/users/register/register.dto";
 
-import { AuthProvider, errorCodes, UserRole, UserStatus } from "../lib/constants";
-import { hashPassword } from "../lib/utils/bcrypt";
+import {
+  AuthProvider,
+  errorCodes,
+  httpStatusCodes,
+  UserRole,
+  UserStatus
+} from "@/lib/constants";
+import { APIError, hashPassword } from "@/lib/utils";
 
-import { userRepository } from "../repositories/UserRepository";
+import { userRepository } from "@/repositories/UserRepository";
 
 export class AuthService {
 
@@ -12,7 +18,7 @@ export class AuthService {
     const existingUser = await userRepository.findByEmail(data.email);
 
     if (existingUser) {
-      throw new Error(errorCodes.EMAIL_ALREADY_EXISTS);
+      throw new APIError(errorCodes.EMAIL_ALREADY_EXISTS, httpStatusCodes.DUPLICATE_ENTRY);
     }
 
     const hashedPassword = await hashPassword(data.password);
