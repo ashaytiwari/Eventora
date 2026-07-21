@@ -3,6 +3,7 @@
 import { useFormik } from 'formik';
 import Link from 'next/link';
 import { X } from 'lucide-react';
+import { signIn } from "next-auth/react";
 
 import FormInputControl from '@/components/formControls/FormInputControl';
 
@@ -18,10 +19,20 @@ const Page = () => {
       password: ''
     },
     validate: validateSigninForm,
-    onSubmit: values => {
-      console.log(values);
-    }
+    onSubmit: handleLogin
   });
+  const formikValues = formik.values;
+
+  async function handleLogin() {
+
+    const response = await signIn("credentials", {
+      email: formikValues.email,
+      password: formikValues.password,
+      redirect: false,
+    });
+
+    console.log(response);
+  }
 
   function renderEmailControl() {
 
@@ -29,7 +40,7 @@ const Page = () => {
       label: "Email Address",
       name: "email",
       type: "email",
-      value: formik.values.email,
+      value: formikValues.email,
       onChange: formik.handleChange,
       onBlur: formik.handleBlur,
       error: formik.touched.email && formik.errors.email ? formik.errors.email : undefined,
@@ -46,7 +57,7 @@ const Page = () => {
       label: "Password",
       name: "password",
       type: "password",
-      value: formik.values.password,
+      value: formikValues.password,
       onChange: formik.handleChange,
       onBlur: formik.handleBlur,
       error: formik.touched.password && formik.errors.password ? formik.errors.password : undefined,

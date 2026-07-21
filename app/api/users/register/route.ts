@@ -1,3 +1,5 @@
+import { authService } from "@/services/auth.service";
+
 import {
   APIError,
   ApiResponse,
@@ -7,7 +9,6 @@ import {
 import { httpStatusCodes, serverMessages } from "@/lib/constants";
 
 import { registerSchema } from "./register.dto";
-import { registerService } from "./service";
 
 export async function POST(req: Request) {
   try {
@@ -23,7 +24,7 @@ export async function POST(req: Request) {
 
     const validated = validationResult.data;
 
-    await registerService.register(validated);
+    await authService.register(validated);
 
     return ApiResponse.success(undefined, serverMessages.users.register.success, httpStatusCodes.CREATED_SUCCESSFULLY)
 
