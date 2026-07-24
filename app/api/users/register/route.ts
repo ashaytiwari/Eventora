@@ -8,6 +8,8 @@ import {
 } from "@/lib/utils";
 import { httpStatusCodes, serverMessages } from "@/lib/constants";
 
+import { verificationTokenService } from "@/services/verificationToken.service";
+
 import { registerSchema } from "./register.dto";
 
 export async function POST(req: Request) {
@@ -24,7 +26,8 @@ export async function POST(req: Request) {
 
     const validated = validationResult.data;
 
-    await authService.register(validated);
+    const newUser = await authService.register(validated);
+    const token = await verificationTokenService.create(newUser._id);
 
     return ApiResponse.success(undefined, serverMessages.users.register.success, httpStatusCodes.CREATED_SUCCESSFULLY)
 

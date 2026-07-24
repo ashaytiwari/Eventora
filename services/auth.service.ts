@@ -26,7 +26,7 @@ class AuthService {
 
     const hashedPassword = await hashPassword(data.password);
 
-    await userRepository.create({
+    const newUser = await userRepository.create({
       firstname: data.firstname,
       lastname: data.lastname,
       email: data.email,
@@ -36,6 +36,8 @@ class AuthService {
       status: UserStatus.ACTIVE,
       emailVerified: false,
     });
+
+    return newUser;
   }
 
   async login(email: string, password: string) {
