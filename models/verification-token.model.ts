@@ -1,9 +1,12 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
 
+import { VerificationTokenPurpose } from '@/lib/constants';
+
 export interface IVerificationToken extends Document {
   userId: mongoose.Types.ObjectId;
   token: string;
-  expiresAt: string;
+  purpose: string,
+  expiresAt: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -21,7 +24,12 @@ const VerificationTokenSchema = new Schema<IVerificationToken>(
       trim: true,
     },
     expiresAt: {
+      type: Date,
+      required: true,
+    },
+    purpose: {
       type: String,
+      enum: Object.values(VerificationTokenPurpose),
       required: true,
     },
   },

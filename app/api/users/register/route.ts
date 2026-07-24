@@ -6,7 +6,7 @@ import {
   connectDB,
   formatZodErrors
 } from "@/lib/utils";
-import { httpStatusCodes, serverMessages } from "@/lib/constants";
+import { httpStatusCodes, serverMessages, VerificationTokenPurpose } from "@/lib/constants";
 import { sendEmail } from "@/lib/utils/email";
 
 import { verificationTokenService } from "@/services/verificationToken.service";
@@ -17,7 +17,7 @@ import { registerSchema } from "./register.dto";
 
 export async function POST(req: Request) {
   try {
-    connectDB();
+    await connectDB();
 
     const body = await req.json();
 
@@ -30,7 +30,7 @@ export async function POST(req: Request) {
     const validated = validationResult.data;
 
     const newUser = await authService.register(validated);
-    const token = await verificationTokenService.create(newUser._id);
+    const token = await verificationTokenService.create(newUser._id, VerificationTokenPurpose.EMAIL_VERIFICATION);
 
     const verificationURL = `${process.env.AUTH_URL}/verify-email?token=${token}`;
 
@@ -45,7 +45,7 @@ export async function POST(req: Request) {
       html: htmlContent
     });
 
-    return ApiResponse.success(undefined, serverMessages.users.register.success, httpStatusCodes.CREATED_SUCCESSFULLY)
+    return ApiResponse.success(undefined, serverMessages.users.register.success, httpStatusCodes.CREATED_SUCCESSFULLY);
 
   } catch (error: any) {
 

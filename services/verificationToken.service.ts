@@ -1,23 +1,66 @@
 import mongoose from "mongoose";
 
-import { generateToken } from "@/lib/utils";
+import { APP_CONFIG } from "@/config";
 
+import { APIError, generateToken, sha256Hash } from "@/lib/utils";
+import { errorCodes, httpStatusCodes, VerificationTokenPurpose } from "@/lib/constants";
+
+import { userRepository } from "@/repositories/UserRepository";
 import { verificationTokenRepository } from "@/repositories/VerificationTokenRepository";
 
 class VerificationTokenService {
 
-  async create(userId: mongoose.Types.ObjectId) {
+  async create(userId: mongoose.Types.ObjectId, purpose: VerificationTokenPurpose) {
 
-    const tokenExpiresAt = '1d';
-    const token = generateToken({ _id: userId }, "1d");
+    await verificationTokenRepository.deleteByUserIdAndPurpose(userId, purpose);
+
+    const token = generateToken({ _id: userId }, APP_CONFIG.EMAIL_VERIFICATION_TOKEN_EXPIRES_IN);
+
+    const hashedToken = sha256Hash(token);
 
     await verificationTokenRepository.create({
       userId,
-      token,
-      expiresAt: tokenExpiresAt
+      token: hashedToken,
+      expiresAt: new Date(Date.now() + APP_CONFIG.EMAIL_VERIFICATION_TOKEN_EXPIRES_IN),
+      purpose
     });
 
     return token;
+
+  }
+
+  async verify(token: string) {
+
+    const hashedToken = sha256Hash(token);
+    const verificationToken = await verificationTokenRepository.findByToken(hashedToken);
+
+    if (!verificationToken) {
+      throw new APIError(errorCodes.INVALID_CREDENTIALS, httpStatusCodes.UNAUTHORIZED);
+    }
+
+    if (verificationToken.expiresAt.getTime() < Date.now()) {
+      await verificationTokenRepository.deleteById(verificationToken._id);
+      throw new APIError(errorCodes.TOKEN_EXPIRES, httpStatusCodes.BAD_REQUEST);
+    }
+
+    const user = await userRepository.findById(verificationToken.userId);
+
+    if (!user) {
+      throw new APIError(errorCodes.INVALID_CREDENTIALS, httpStatusCodes.UNAUTHORIZED);
+    }
+
+    if (user.emailVerified) {
+      await verificationTokenRepository.deleteById(verificationToken._id);
+      throw new APIError(errorCodes.EMAIL_ALREADY_VERIFIED, httpStatusCodes.BAD_REQUEST);
+    }
+
+    if (verificationToken.purpose === VerificationTokenPurpose.EMAIL_VERIFICATION) {
+      await userRepository.update(user._id, { emailVerified: true });
+    }
+
+    await verificationTokenRepository.deleteById(verificationToken._id);
+
+    return true;
 
   }
 

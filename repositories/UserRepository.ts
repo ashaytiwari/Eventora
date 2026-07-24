@@ -1,4 +1,5 @@
 import User from "@/models/user.model";
+import mongoose from "mongoose";
 
 export class UserRepository {
 
@@ -16,11 +17,11 @@ export class UserRepository {
     }).select("+password");
   }
 
-  async findById(id: string) {
+  async findById(id: mongoose.Types.ObjectId) {
     return User.findById(id);
   }
 
-  async update(id: string, data: any) {
+  async update(id: mongoose.Types.ObjectId, data: any) {
     return User.findByIdAndUpdate(id, data, { new: true });
   }
 

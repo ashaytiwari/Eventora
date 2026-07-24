@@ -3,5 +3,5 @@ export * from './apiResponse';
 export * from './common';
 export * from './db';
 export * from './zod';
-export * from './bcrypt';
+export * from './hashes';
 export * from './jwt';

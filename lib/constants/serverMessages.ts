@@ -5,6 +5,9 @@ export const serverMessages = {
       success: "Registration successful. Please verify your email.",
       emailAlreadyRegistered: "Email is already registered."
     },
+    emailVerification: {
+      success: "Email verified successfully."
+    },
     login: {
       invalidCredentials: "Invalid email or password.",
       accountInactive: "Your account is inactive. Please contact the administrator.",

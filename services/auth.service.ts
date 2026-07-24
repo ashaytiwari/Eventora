@@ -1,5 +1,3 @@
-import bcrypt from "bcryptjs";
-
 import { RegisterDto } from "@/app/api/users/register/register.dto";
 
 import { userRepository } from "@/repositories/UserRepository";
@@ -12,7 +10,7 @@ import {
   UserRole,
   UserStatus
 } from "@/lib/constants";
-import { APIError, hashPassword } from "@/lib/utils";
+import { APIError, comparePassword, hashPassword } from "@/lib/utils";
 
 class AuthService {
 
@@ -45,10 +43,10 @@ class AuthService {
     const user = await userRepository.findByEmailWithPassword(email);
 
     if (!user) {
-      throw new APIError(serverMessages.users.login.invalidCredentials, httpStatusCodes.NOT_FOUND);
+      throw new APIError(serverMessages.users.login.invalidCredentials, httpStatusCodes.FORBIDDEN);
     }
 
-    const isPasswordValid = await bcrypt.compare(password, user.password!);
+    const isPasswordValid = await comparePassword(password, user.password!);
 
     if (!isPasswordValid) {
       throw new APIError(serverMessages.users.login.invalidCredentials, httpStatusCodes.UNAUTHORIZED);

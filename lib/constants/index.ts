@@ -5,3 +5,4 @@ export * from "./httpStatusCodes";
 export * from "./errorCodes";
 export * from "./serverMessages";
 export * from "./messages";
+export * from './verificationTokenPurpose';
