@@ -12,7 +12,7 @@ const JoinNowBtn = () => {
     id: 'explore-btn',
     className: 'mt-7 mx-auto',
     onClick() {
-      router.push('/signin');
+      router.push('/auth/signin');
     }
   };
 
