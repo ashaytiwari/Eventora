@@ -12,6 +12,9 @@ export const serverMessages = {
       invalidCredentials: "Invalid email or password.",
       accountInactive: "Your account is inactive. Please contact the administrator.",
       emailNotVerified: "Your email is not verified. Please verify your email."
+    },
+    forgotPassword: {
+      success: "If an account with this email exists, a reset password link has been sent."
     }
   }
 };

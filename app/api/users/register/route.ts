@@ -9,6 +9,8 @@ import {
 import { httpStatusCodes, serverMessages, VerificationTokenPurpose } from "@/lib/constants";
 import { sendEmail } from "@/lib/utils/email";
 
+import { APP_CONFIG } from "@/config";
+
 import { verificationTokenService } from "@/services/verificationToken.service";
 
 import { verifyEmailTemplate } from "@/templates/verifyEmailTemplate";
@@ -30,9 +32,13 @@ export async function POST(req: Request) {
     const validated = validationResult.data;
 
     const newUser = await authService.register(validated);
-    const token = await verificationTokenService.create(newUser._id, VerificationTokenPurpose.EMAIL_VERIFICATION);
+    const token = await verificationTokenService.create(
+      newUser._id,
+      VerificationTokenPurpose.EMAIL_VERIFICATION,
+      APP_CONFIG.EMAIL_VERIFICATION_TOKEN_EXPIRES_IN
+    );
 
-    const verificationURL = `${process.env.AUTH_URL}/verify-email?token=${token}`;
+    const verificationURL = `${process.env.AUTH_URL}/auth/verify-email?token=${token}`;
 
     const htmlContent = verifyEmailTemplate({
       firstName: newUser.firstname,

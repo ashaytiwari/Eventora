@@ -1,7 +1,5 @@
 import mongoose from "mongoose";
 
-import { APP_CONFIG } from "@/config";
-
 import { APIError, generateToken, sha256Hash } from "@/lib/utils";
 import { errorCodes, httpStatusCodes, VerificationTokenPurpose } from "@/lib/constants";
 
@@ -10,18 +8,18 @@ import { verificationTokenRepository } from "@/repositories/VerificationTokenRep
 
 class VerificationTokenService {
 
-  async create(userId: mongoose.Types.ObjectId, purpose: VerificationTokenPurpose) {
+  async create(userId: mongoose.Types.ObjectId, purpose: VerificationTokenPurpose, expiresIn: number) {
 
     await verificationTokenRepository.deleteByUserIdAndPurpose(userId, purpose);
 
-    const token = generateToken({ _id: userId }, APP_CONFIG.EMAIL_VERIFICATION_TOKEN_EXPIRES_IN);
+    const token = generateToken({ _id: userId }, expiresIn);
 
     const hashedToken = sha256Hash(token);
 
     await verificationTokenRepository.create({
       userId,
       token: hashedToken,
-      expiresAt: new Date(Date.now() + APP_CONFIG.EMAIL_VERIFICATION_TOKEN_EXPIRES_IN),
+      expiresAt: new Date(Date.now() + expiresIn),
       purpose
     });
 
