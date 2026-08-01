@@ -1,4 +1,4 @@
-import { RegisterDto } from "@/app/api/users/register/register.dto";
+import { RegisterDto } from "@/app/api/auth/register/register.dto";
 
 import { userRepository } from "@/repositories/UserRepository";
 
