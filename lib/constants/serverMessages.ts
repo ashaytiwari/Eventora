@@ -15,6 +15,9 @@ export const serverMessages = {
     },
     forgotPassword: {
       success: "If an account with this email exists, a reset password link has been sent."
+    },
+    resetPassword: {
+      success: "Password reset successful. You can now login with your new password."
     }
   }
 };

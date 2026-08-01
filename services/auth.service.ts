@@ -106,6 +106,18 @@ class AuthService {
 
   }
 
+  async resetPassword(token: string, password: string) {
+
+    const verifiedUser: any = await verificationTokenService.verify(token);
+
+    if (verifiedUser) {
+      const hashedPassword = await hashPassword(password);
+      await userRepository.update(verifiedUser._id, { password: hashedPassword });
+    }
+
+    return true;
+  }
+
 }
 
 export const authService = new AuthService();

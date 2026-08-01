@@ -47,16 +47,31 @@ class VerificationTokenService {
       throw new APIError(errorCodes.INVALID_CREDENTIALS, httpStatusCodes.UNAUTHORIZED);
     }
 
-    if (user.emailVerified) {
+    if (verificationToken.purpose === VerificationTokenPurpose.EMAIL_VERIFICATION) {
+
       await verificationTokenRepository.deleteById(verificationToken._id);
+      await this.emailVerificationHandler(user, verificationToken._id);
+
+    } else if (verificationToken.purpose === VerificationTokenPurpose.PASSWORD_RESET) {
+
+      await verificationTokenRepository.deleteById(verificationToken._id);
+      return user;
+
+    }
+
+
+    return true;
+
+  }
+
+  async emailVerificationHandler(user: any, verificationTokenId: mongoose.Types.ObjectId) {
+
+    if (user.emailVerified) {
+      await verificationTokenRepository.deleteById(verificationTokenId);
       throw new APIError(errorCodes.EMAIL_ALREADY_VERIFIED, httpStatusCodes.BAD_REQUEST);
     }
 
-    if (verificationToken.purpose === VerificationTokenPurpose.EMAIL_VERIFICATION) {
-      await userRepository.update(user._id, { emailVerified: true });
-    }
-
-    await verificationTokenRepository.deleteById(verificationToken._id);
+    await userRepository.update(user._id, { emailVerified: true });
 
     return true;
 
