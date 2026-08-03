@@ -3,6 +3,7 @@ import { Schibsted_Grotesk, Martian_Mono, Geist } from "next/font/google";
 
 import LightRays from "@/components/lightRays/LightRays";
 import Navbar from "@/components/navbar/Navbar";
+import AppProvider from "@/components/Providers";
 
 import { cn } from "@/lib/utils/common";
 
@@ -58,7 +59,9 @@ export default function RootLayout({
         </div>
 
         <main>
-          {children}
+          <AppProvider>
+            {children}
+          </AppProvider>
         </main>
 
       </body>
