@@ -1,4 +1,16 @@
+import { authService } from "@/services/auth.service";
+
 export const authCallbacks = {
+
+  async signIn({ user, account, profile }: any) {
+
+    if (account?.provider !== 'google') {
+      return true;
+    }
+
+    await authService.googleLogin(profile);
+    return true;
+  },
 
   async jwt({ token, user }: any) {
 
@@ -20,6 +32,6 @@ export const authCallbacks = {
     session.user.lastname = token.lastname as string;
 
     return session;
-  },
+  }
 
 };

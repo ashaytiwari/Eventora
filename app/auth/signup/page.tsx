@@ -1,8 +1,10 @@
 'use client';
 
-import { useFormik } from 'formik';
 import Link from 'next/link';
+import Image from 'next/image';
+import { signIn } from 'next-auth/react';
 import { X } from 'lucide-react';
+import { useFormik } from 'formik';
 
 import FormInputControl from '@/components/formControls/FormInputControl';
 
@@ -27,6 +29,16 @@ const Page = () => {
 
   async function handleRegister() {
     console.log('Register:', formikValues);
+  }
+
+  function renderOrDivider() {
+    return (
+      <div className="flex items-center my-4">
+        <hr className="flex-1 border-t border-gray-300" />
+        <span className="px-2 text-gray-500">or</span>
+        <hr className="flex-1 border-t border-gray-300" />
+      </div>
+    );
   }
 
   function renderSectionHeader() {
@@ -99,36 +111,40 @@ const Page = () => {
 
   }
 
-  function renderPasswordStrengthIndicator() {
+  function renderGoogleButton() {
 
+    const handleGoogleSignIn = async () => {
+      await signIn('google');
+    };
+
+    return (
+      <button
+        type="button"
+        onClick={handleGoogleSignIn}
+        className="flex items-center justify-center w-full gap-2 bg-white hover:bg-gray-100 rounded-[6px] px-4 py-2.5 text-lg font-semibold text-black transition-colors duration-200"
+      >
+        <Image src="/images/google_logo.webp" alt="Google" width={25} height={25} />
+        Continue with Google
+      </button>
+    );
+  }
+
+  function renderPasswordStrengthIndicator() {
     const password = formikValues.password;
     if (!password) return null;
 
     const strength: PasswordStrength = getPasswordStrength(password);
 
     const strengthConfig = {
-      weak: {
-        label: 'Weak',
-        filledBars: 1,
-        color: '#ef4444',
-      },
-      moderate: {
-        label: 'Moderate',
-        filledBars: 2,
-        color: '#f59e0b',
-      },
-      strong: {
-        label: 'Strong',
-        filledBars: 3,
-        color: '#22c55e',
-      },
+      weak: { label: 'Weak', filledBars: 1, color: '#ef4444' },
+      moderate: { label: 'Moderate', filledBars: 2, color: '#f59e0b' },
+      strong: { label: 'Strong', filledBars: 3, color: '#22c55e' },
     };
 
     const config = strengthConfig[strength];
 
     return (
       <div className="flex items-center gap-2 mt-1">
-
         <div className="flex gap-1 flex-1">
           {[0, 1, 2].map((index) => (
             <div
@@ -140,14 +156,11 @@ const Page = () => {
             />
           ))}
         </div>
-
         <span className="text-xs font-medium" style={{ color: config.color }}>
           {config.label}
         </span>
-
       </div>
     );
-
   }
 
   function renderPasswordControl() {
@@ -208,6 +221,19 @@ const Page = () => {
 
   }
 
+  function renderCreateAccountControl() {
+
+    return (
+      <button
+        type="submit"
+        className="bg-primary hover:bg-primary/90 w-full cursor-pointer items-center justify-center rounded-[6px] px-4 py-2.5 text-lg font-semibold text-black mt-2 transition-colors duration-200"
+      >
+        Create Account
+      </button>
+    );
+
+  }
+
   return (
     <section className='flex justify-center items-center min-h-[80vh] px-4'>
       <div className={styles.container}>
@@ -217,19 +243,13 @@ const Page = () => {
         <form onSubmit={formik.handleSubmit} className='flex flex-col gap-6'>
 
           {renderNameRow()}
-
           {renderEmailControl()}
-
           {renderPasswordControl()}
-
           {renderConfirmPasswordControl()}
 
-          <button
-            type="submit"
-            className="bg-primary hover:bg-primary/90 w-full cursor-pointer items-center justify-center rounded-[6px] px-4 py-2.5 text-lg font-semibold text-black mt-2 transition-colors duration-200"
-          >
-            Create Account
-          </button>
+          {renderCreateAccountControl()}
+          {renderOrDivider()}
+          {renderGoogleButton()}
 
         </form>
 

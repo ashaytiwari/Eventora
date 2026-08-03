@@ -1,9 +1,10 @@
 'use client';
 
-import { useFormik } from 'formik';
+import Image from 'next/image';
 import Link from 'next/link';
-import { X } from 'lucide-react';
 import { signIn } from "next-auth/react";
+import { useFormik } from 'formik';
+import { X } from 'lucide-react';
 
 import FormInputControl from '@/components/formControls/FormInputControl';
 
@@ -32,6 +33,16 @@ const Page = () => {
     });
 
     console.log(response);
+  }
+
+  function renderOrDivider() {
+    return (
+      <div className="flex items-center my-4">
+        <hr className="flex-1 border-t border-gray-300" />
+        <span className="px-2 text-gray-500">or</span>
+        <hr className="flex-1 border-t border-gray-300" />
+      </div>
+    );
   }
 
   function renderEmailControl() {
@@ -85,6 +96,25 @@ const Page = () => {
 
   }
 
+  function renderGoogleButton() {
+
+    const handleGoogleSignIn = async () => {
+      const user = await signIn('google');
+      console.log('Signing User details', user);
+    };
+
+    return (
+      <button
+        type="button"
+        onClick={handleGoogleSignIn}
+        className="flex items-center justify-center w-full gap-2 bg-white hover:bg-gray-100 rounded-[6px] px-4 py-2.5 text-lg font-semibold text-black transition-colors duration-200"
+      >
+        <Image src="/images/google_logo.webp" alt="Google" width={25} height={25} />
+        Continue with Google
+      </button>
+    );
+  }
+
   function renderDontHaveAnAccountSection() {
 
     return (
@@ -95,6 +125,34 @@ const Page = () => {
           className="text-blue hover:underline font-medium transition-colors duration-200"
         >
           Signup
+        </Link>
+      </div>
+    );
+
+  }
+
+  function renderSigninControl() {
+
+    return (
+      <button
+        type="submit"
+        className="bg-primary hover:bg-primary/90 w-full cursor-pointer items-center justify-center rounded-[6px] px-4 py-2.5 text-lg font-semibold text-black mt-2 transition-colors duration-200"
+      >
+        Sign In
+      </button>
+    );
+
+  }
+
+  function renderForgotPasswordSection() {
+
+    return (
+      <div className="flex justify-start">
+        <Link
+          href="/auth/forgot-password"
+          className="text-xs text-blue hover:underline transition-colors duration-200"
+        >
+          Forgot password?
         </Link>
       </div>
     );
@@ -112,24 +170,12 @@ const Page = () => {
 
           <div className="flex flex-col gap-1.5">
             {renderPasswordControl()}
-
-            <div className="flex justify-start">
-              <Link
-                href="/auth/forgot-password"
-                className="text-xs text-blue hover:underline transition-colors duration-200"
-              >
-                Forgot password?
-              </Link>
-            </div>
-
+            {renderForgotPasswordSection()}
           </div>
 
-          <button
-            type="submit"
-            className="bg-primary hover:bg-primary/90 w-full cursor-pointer items-center justify-center rounded-[6px] px-4 py-2.5 text-lg font-semibold text-black mt-2 transition-colors duration-200"
-          >
-            Sign In
-          </button>
+          {renderSigninControl()}
+          {renderOrDivider()}
+          {renderGoogleButton()}
 
         </form>
 

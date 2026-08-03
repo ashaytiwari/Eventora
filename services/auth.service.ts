@@ -1,3 +1,5 @@
+import { GoogleProfile } from "next-auth/providers/google";
+
 import { RegisterDto } from "@/app/api/auth/register/register.dto";
 
 import { userRepository } from "@/repositories/UserRepository";
@@ -13,7 +15,7 @@ import {
   UserStatus,
   VerificationTokenPurpose
 } from "@/lib/constants";
-import { APIError, comparePassword, hashPassword } from "@/lib/utils";
+import { APIError, comparePassword, connectDB, hashPassword } from "@/lib/utils";
 import { sendEmail } from "@/lib/utils/email";
 
 import { resetPasswordTemplate } from "@/templates/resetPasswordTemplate";
@@ -116,6 +118,52 @@ class AuthService {
     }
 
     return true;
+  }
+
+  async googleLogin(profile: GoogleProfile) {
+
+    await connectDB();
+
+    // check if user with same email already exists
+    const existingUser = await userRepository.findByEmail(profile.email);
+
+    // create new user account - for new google users
+    if (!existingUser) {
+
+      const newUser = await userRepository.create({
+        firstname: profile.given_name,
+        lastname: profile.family_name,
+        email: profile.email,
+        role: UserRole.EVENT_ATTENDEE,
+        providers: [AuthProvider.GOOGLE],
+        status: UserStatus.ACTIVE,
+        googleId: profile.sub,
+        emailVerified: true,
+      });
+
+      return newUser;
+    }
+
+    // if user is suspended
+    if (existingUser.status === UserStatus.SUSPENDED) {
+      throw new APIError(serverMessages.users.login.accountInactive, httpStatusCodes.FORBIDDEN);
+    }
+
+    // link existing user's google account
+    if (!existingUser.providers.includes(AuthProvider.GOOGLE)) {
+
+      const updatedUser = await userRepository.update(existingUser._id, {
+        providers: [...existingUser.providers, AuthProvider.GOOGLE],
+        emailVerified: true,
+        googleId: profile.sub,
+      });
+
+      return updatedUser;
+
+    }
+
+    return existingUser;
+
   }
 
 }
