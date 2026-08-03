@@ -22,8 +22,8 @@ const martianMono = Martian_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Next Dev Events",
-  description: "Dev Events handled by Next JS - DG",
+  title: "Eventora",
+  description: "Eventora: Your Comprehensive Guide to Dev Events, Hackathons, Meetups, and Conferences. Discover, Connect, and Grow Your Tech Journey.",
 };
 
 export default function RootLayout({
