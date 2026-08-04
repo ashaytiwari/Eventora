@@ -1,18 +1,34 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { signIn } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 import { useFormik } from 'formik';
 import { X } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import toast from 'react-hot-toast';
 
 import FormInputControl from '@/components/formControls/FormInputControl';
+
+import { getNavigationRedirectPath } from '@/lib/utils/navigationHelper';
 
 import { validateSigninForm } from './utilities';
 
 import styles from './styles.module.css';
 
+type AuthState =
+  | "idle"
+  | "loading"
+  | "success"
+  | "error";
+
 const Page = () => {
+
+  const router = useRouter();
+
+  const [authState, setAuthState] = useState<AuthState>('idle');
+  const { status, data: session }: any = useSession();
 
   const formik = useFormik({
     initialValues: {
@@ -24,15 +40,39 @@ const Page = () => {
   });
   const formikValues = formik.values;
 
+  useEffect(() => {
+
+    if (status !== "authenticated") return;
+
+    router.replace(getNavigationRedirectPath(session.user));
+
+  }, [status, session]);
+
   async function handleLogin() {
 
-    const response = await signIn("credentials", {
-      email: formikValues.email,
-      password: formikValues.password,
-      redirect: false,
-    });
+    try {
 
-    console.log(response);
+      setAuthState('loading');
+
+      const result = await signIn("credentials", {
+        email: formikValues.email,
+        password: formikValues.password,
+        redirect: false,
+      });
+
+      if (result?.error) {
+        setAuthState("error");
+        toast.error(result.error);
+        return;
+      }
+
+      setAuthState("success");
+
+    } catch (error) {
+      setAuthState("error");
+      toast.error("Something went wrong.");
+    }
+
   }
 
   function renderOrDivider() {
@@ -157,6 +197,12 @@ const Page = () => {
       </div>
     );
 
+  }
+
+  if (authState === 'loading') {
+    return (
+      <h4 className='text-center text-xl text-white font-medium mt-10'>Signing in...</h4>
+    );
   }
 
   return (

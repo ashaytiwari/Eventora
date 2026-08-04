@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 
 import { UserRole } from '@/lib/constants';
 
-import Loader from '../loading';
+import Loader from './loading';
 
 interface AuthGuardProps {
   children: ReactNode;

@@ -1,3 +1,4 @@
+import { userRepository } from "@/repositories/UserRepository";
 import { authService } from "@/services/auth.service";
 
 export const authCallbacks = {
@@ -12,16 +13,23 @@ export const authCallbacks = {
     return true;
   },
 
-  async jwt({ token, user }: any) {
+  async jwt({ token, user, account }: any) {
 
-    if (user) {
-      token.id = user.id;
-      token.role = user.role;
-      token.firstname = user.firstname;
-      token.lastname = user.lastname;
+    if (user && token.email) {
+      const dbUser = await userRepository.findByEmail(token.email);
+
+      if (dbUser) {
+        token.id = dbUser._id.toString();
+        token.role = dbUser.role;
+        token.firstname = dbUser.firstname;
+        token.lastname = dbUser.lastname;
+        token.status = dbUser.status;
+        token.providers = dbUser.providers;
+      }
     }
 
     return token;
+
   },
 
   async session({ session, token }: any) {

@@ -1,6 +1,6 @@
 import { UserRole } from "@/lib/constants";
 
-import AuthGuard from "../auth/AuthGuard";
+import AuthGuard from "../AuthGuard";
 
 export default function Page() {
 
