@@ -1,27 +1,21 @@
-'use client';
-
-import React, { useEffect } from 'react';
-import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
+import { redirect } from 'next/navigation';
+import { getServerSession } from 'next-auth';
 
 import EventCard from '@/components/eventCard/EventCard';
 import JoinNowBtn from '@/components/joinNowBtn/JoinNowBtn';
 
-import { events } from '@/lib/constants/events';
 import { getNavigationRedirectPath } from '@/lib/utils/navigationHelper';
+import { events } from '@/lib/constants/events';
 
-function Page() {
+import { authOptions } from './api/auth/[...nextauth]/auth';
 
-  const router = useRouter();
-  const { status, data: session }: any = useSession();
+async function Page() {
 
-  useEffect(() => {
+  const session = await getServerSession(authOptions);
 
-    if (status !== "authenticated") return;
-
-    router.replace(getNavigationRedirectPath(session.user));
-
-  }, [status, session]);
+  if (session?.user) {
+    redirect(getNavigationRedirectPath(session.user));
+  }
 
   return (
     <section>
