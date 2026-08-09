@@ -9,6 +9,8 @@ import { X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 
+import Loader from '@/app/loading';
+
 import FormInputControl from '@/components/formControls/FormInputControl';
 
 import { getNavigationRedirectPath } from '@/lib/utils/navigationHelper';
@@ -139,8 +141,7 @@ const Page = () => {
   function renderGoogleButton() {
 
     const handleGoogleSignIn = async () => {
-      const user = await signIn('google');
-      console.log('Signing User details', user);
+      await signIn('google');
     };
 
     return (
@@ -200,9 +201,7 @@ const Page = () => {
   }
 
   if (authState === 'loading') {
-    return (
-      <h4 className='text-center text-xl text-white font-medium mt-10'>Signing in...</h4>
-    );
+    return <Loader />;
   }
 
   return (

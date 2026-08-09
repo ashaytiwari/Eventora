@@ -1,11 +1,27 @@
-import React from 'react';
+'use client';
+
+import React, { useEffect } from 'react';
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 
 import EventCard from '@/components/eventCard/EventCard';
 import JoinNowBtn from '@/components/joinNowBtn/JoinNowBtn';
 
 import { events } from '@/lib/constants/events';
+import { getNavigationRedirectPath } from '@/lib/utils/navigationHelper';
 
 function Page() {
+
+  const router = useRouter();
+  const { status, data: session }: any = useSession();
+
+  useEffect(() => {
+
+    if (status !== "authenticated") return;
+
+    router.replace(getNavigationRedirectPath(session.user));
+
+  }, [status, session]);
 
   return (
     <section>

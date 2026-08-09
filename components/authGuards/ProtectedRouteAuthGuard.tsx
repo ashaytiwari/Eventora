@@ -6,23 +6,21 @@ import { useRouter } from 'next/navigation';
 
 import { UserRole } from '@/lib/constants';
 
-import Loader from './loading';
+import Loader from '../../app/loading';
 
-interface AuthGuardProps {
+interface ProtectedRouteAuthGuardProps {
   children: ReactNode;
   allowedRoles?: UserRole[];
 }
 
-export default function AuthGuard({
+export default function ProtectedRouteAuthGuard({
   children,
   allowedRoles = [],
-}: AuthGuardProps) {
+}: ProtectedRouteAuthGuardProps) {
 
   const router = useRouter();
 
   const { status, data: session }: any = useSession();
-
-  console.log(status, session);
 
   useEffect(() => {
 
