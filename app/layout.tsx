@@ -3,7 +3,8 @@ import { Schibsted_Grotesk, Martian_Mono, Geist } from "next/font/google";
 
 import LightRays from "@/components/lightRays/LightRays";
 import Navbar from "@/components/navbar/Navbar";
-import AppProvider from "@/components/Providers";
+import AppProvider from "@/components/providers/Providers";
+import ReactQueryProvider from "@/components/providers/ReactQueryProviders";
 
 import { cn } from "@/lib/utils/common";
 
@@ -51,19 +52,19 @@ export default function RootLayout({
       className={cn("h-full", "antialiased", schibstedGrotesk.variable, martianMono.variable, "font-sans", geist.variable)}
     >
       <body className="min-h-full flex flex-col">
+        <ReactQueryProvider>
+          <Navbar />
 
-        <Navbar />
+          <div className="absolute inset-0 top-0 z-[-1] min-h-screen">
+            <LightRays {...lightRaysAttributes} />
+          </div>
 
-        <div className="absolute inset-0 top-0 z-[-1] min-h-screen">
-          <LightRays {...lightRaysAttributes} />
-        </div>
-
-        <main>
-          <AppProvider>
-            {children}
-          </AppProvider>
-        </main>
-
+          <main>
+            <AppProvider>
+              {children}
+            </AppProvider>
+          </main>
+        </ReactQueryProvider>
       </body>
     </html>
   );

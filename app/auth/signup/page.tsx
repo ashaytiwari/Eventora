@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { signIn } from 'next-auth/react';
@@ -9,10 +10,17 @@ import { useFormik } from 'formik';
 import FormInputControl from '@/components/formControls/FormInputControl';
 
 import { validateSignupForm, getPasswordStrength, PasswordStrength } from './utilities';
+import Loader from '@/app/loading';
+
+import { useAuthSignup } from './service';
 
 import styles from './styles.module.css';
 
 const Page = () => {
+
+  const authSignupMutation = useAuthSignup();
+
+  const [loading, setLoading] = useState(false);
 
   const formik = useFormik({
     initialValues: {
@@ -28,7 +36,20 @@ const Page = () => {
   const formikValues = formik.values;
 
   async function handleRegister() {
-    console.log('Register:', formikValues);
+
+    setLoading(true);
+
+    const params = {
+      firstname: formikValues.firstName,
+      lastname: formikValues.lastName,
+      email: formikValues.email,
+      password: formikValues.password
+    };
+
+    await authSignupMutation.mutateAsync(params);
+
+    setLoading(false);
+
   }
 
   function renderOrDivider() {
@@ -83,7 +104,7 @@ const Page = () => {
     };
 
     return (
-      <div className="flex gap-4">
+      <div className="flex flex-col sm:flex-row gap-4">
 
         <FormInputControl {...firstNameAttributes} className="flex-1" />
 
@@ -232,6 +253,10 @@ const Page = () => {
       </button>
     );
 
+  }
+
+  if (loading) {
+    return <Loader />;
   }
 
   return (
