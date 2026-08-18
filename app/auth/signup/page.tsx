@@ -6,6 +6,8 @@ import Image from 'next/image';
 import { signIn } from 'next-auth/react';
 import { X } from 'lucide-react';
 import { useFormik } from 'formik';
+import toast from 'react-hot-toast';
+import { useRouter } from 'next/navigation';
 
 import FormInputControl from '@/components/formControls/FormInputControl';
 
@@ -19,6 +21,7 @@ import styles from './styles.module.css';
 const Page = () => {
 
   const authSignupMutation = useAuthSignup();
+  const router = useRouter();
 
   const [loading, setLoading] = useState(false);
 
@@ -36,20 +39,33 @@ const Page = () => {
   const formikValues = formik.values;
 
   async function handleRegister() {
+    try {
 
-    setLoading(true);
+      setLoading(true);
 
-    const params = {
-      firstname: formikValues.firstName,
-      lastname: formikValues.lastName,
-      email: formikValues.email,
-      password: formikValues.password
-    };
+      const params = {
+        firstname: formikValues.firstName,
+        lastname: formikValues.lastName,
+        email: formikValues.email,
+        password: formikValues.password
+      };
 
-    await authSignupMutation.mutateAsync(params);
+      const response = await authSignupMutation.mutateAsync(params);
 
-    setLoading(false);
+      if (response.status === 201) {
+        toast.success('Account created successfully!, Please verify your email to continue.', {
+          duration: 10000
+        });
+        router.push('/');
+      } else {
+        toast.error(response.data.message);
+      }
 
+    } catch (error: any) {
+      toast.error(JSON.stringify(error));
+    } finally {
+      setLoading(false)
+    }
   }
 
   function renderOrDivider() {
