@@ -1,9 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { signIn } from 'next-auth/react';
+import { signIn, useSession } from 'next-auth/react';
 import { X } from 'lucide-react';
 import { useFormik } from 'formik';
 import toast from 'react-hot-toast';
@@ -14,6 +14,8 @@ import FormInputControl from '@/components/formControls/FormInputControl';
 import { validateSignupForm, getPasswordStrength, PasswordStrength } from './utilities';
 import Loader from '@/app/loading';
 
+import { getNavigationRedirectPath } from '@/lib/utils/navigationHelper';
+
 import { useAuthSignup } from './service';
 
 import styles from './styles.module.css';
@@ -22,6 +24,7 @@ const Page = () => {
 
   const authSignupMutation = useAuthSignup();
   const router = useRouter();
+  const { status, data: session }: any = useSession();
 
   const [loading, setLoading] = useState(false);
 
@@ -37,6 +40,14 @@ const Page = () => {
     onSubmit: handleRegister,
   });
   const formikValues = formik.values;
+
+  useEffect(() => {
+
+    if (status !== "authenticated") return;
+
+    router.replace(getNavigationRedirectPath(session.user));
+
+  }, [status, session]);
 
   async function handleRegister() {
     try {
