@@ -1,12 +1,14 @@
 'use client'
 
-import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
+import { useEffect } from 'react';
+import toast from 'react-hot-toast';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { FadeLoader } from 'react-spinners';
 
+import { useAuthVerifyEmail } from './service';
+
 import styles from './styles.module.css';
-import { useRouter, useSearchParams } from 'next/navigation';
-import toast from 'react-hot-toast';
 
 const Page = () => {
 
@@ -14,16 +16,41 @@ const Page = () => {
   const searchParams = useSearchParams();
   const token = searchParams.get('token');
 
-  const [loading, setLoading] = useState(true);
+  const authVerifyEmailMutation = useAuthVerifyEmail();
 
   useEffect(() => {
 
-    if (token) return;
+    if (token) {
+      verifyEmail();
+      return;
+    };
 
-    router.replace('/');
-    toast.error('Email Verification Failed!')
+    handleEmailVerificationFailed();
 
   }, [token]);
+
+  function handleEmailVerificationFailed() {
+    router.replace('/');
+    toast.error('Email Verification Failed!');
+  }
+
+  async function verifyEmail() {
+    try {
+
+      const response = await authVerifyEmailMutation.mutateAsync({ token: token! });
+
+      if (response.status !== 200) {
+        handleEmailVerificationFailed();
+        return;
+      }
+
+      toast.success('Email Verification Successfull! Please login to continue...', { duration: 10000 });
+      router.push('/auth/signin');
+
+    } catch (error) {
+      handleEmailVerificationFailed();
+    }
+  }
 
   function renderImage() {
 
