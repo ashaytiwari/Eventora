@@ -14,8 +14,9 @@ import Loader from '@/app/loading';
 import FormInputControl from '@/components/formControls/FormInputControl';
 
 import { getNavigationRedirectPath } from '@/lib/utils/navigationHelper';
+import { validateYupFormSchema } from '@/lib/utils/validation';
 
-import { validateSigninForm } from './utilities';
+import { signinValidationSchema } from './utilities';
 
 import styles from './styles.module.css';
 
@@ -37,7 +38,7 @@ const Page = () => {
       email: '',
       password: ''
     },
-    validate: validateSigninForm,
+    validate: (values) => validateYupFormSchema(values, signinValidationSchema),
     onSubmit: handleLogin
   });
   const formikValues = formik.values;

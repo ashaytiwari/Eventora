@@ -11,10 +11,11 @@ import { useRouter } from 'next/navigation';
 
 import FormInputControl from '@/components/formControls/FormInputControl';
 
-import { validateSignupForm, getPasswordStrength, PasswordStrength } from './utilities';
+import { getPasswordStrength, PasswordStrength, signupValidationSchema } from './utilities';
 import Loader from '@/app/loading';
 
 import { getNavigationRedirectPath } from '@/lib/utils/navigationHelper';
+import { validateYupFormSchema } from '@/lib/utils/validation';
 
 import { useAuthSignup } from './service';
 
@@ -36,7 +37,7 @@ const Page = () => {
       password: '',
       confirmPassword: '',
     },
-    validate: validateSignupForm,
+    validate: (values) => validateYupFormSchema(values, signupValidationSchema),
     onSubmit: handleRegister,
   });
   const formikValues = formik.values;

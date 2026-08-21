@@ -1,6 +1,6 @@
 import * as yup from 'yup';
 
-const signupSchema = yup.object().shape({
+export const signupValidationSchema = yup.object().shape({
   firstName: yup
     .string()
     .required('First name is required'),
@@ -20,24 +20,6 @@ const signupSchema = yup.object().shape({
     .oneOf([yup.ref('password')], 'Passwords must match')
     .required('Confirm password is required'),
 });
-
-export const validateSignupForm = (values: Record<string, string>) => {
-  try {
-    signupSchema.validateSync(values, { abortEarly: false });
-    return {};
-  } catch (error) {
-    if (error instanceof yup.ValidationError) {
-      const errors: Record<string, string> = {};
-      error.inner.forEach((err) => {
-        if (err.path) {
-          errors[err.path] = err.message;
-        }
-      });
-      return errors;
-    }
-    return {};
-  }
-};
 
 export type PasswordStrength = 'weak' | 'moderate' | 'strong';
 
