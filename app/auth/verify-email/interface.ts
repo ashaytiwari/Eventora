@@ -1,3 +1,3 @@
-export interface IVieryEmailParams {
+export interface IVerifyEmailParams {
   token: string
 }

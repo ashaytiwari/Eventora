@@ -5,10 +5,16 @@ import React from 'react';
 import Link from 'next/link';
 import { X } from 'lucide-react';
 import { useFormik } from 'formik';
+import toast from 'react-hot-toast';
+import { useRouter } from 'next/navigation';
 
 import { validateYupFormSchema } from '@/lib/utils/validation';
 
+import Loader from '@/app/loading';
+
 import FormInputControl from '@/components/formControls/FormInputControl';
+
+import { useAuthForgotPassword } from './service';
 
 import { forgotPasswordValidationSchema } from './utilities';
 
@@ -16,14 +22,37 @@ import styles from './styles.module.css';
 
 function Page() {
 
+  const router = useRouter();
+
+  const forgotPasswordMutation = useAuthForgotPassword();
+
   const formik = useFormik({
     initialValues: {
       email: ''
     },
     validate: (values) => validateYupFormSchema(values, forgotPasswordValidationSchema),
-    onSubmit: () => { }
+    onSubmit: handleFormSubmit
   });
   const formikValues = formik.values;
+
+  async function handleFormSubmit() {
+    try {
+
+      const response = await forgotPasswordMutation.mutateAsync({ email: formikValues.email });
+
+      if (response.status === 200) {
+        toast.success(response.data.message, {
+          duration: 10000
+        });
+        router.push('/');
+      } else {
+        toast.error(response.data.message);
+      }
+
+    } catch (error: any) {
+      toast.error(JSON.stringify(error));
+    }
+  }
 
   function renderSectionHeader() {
 
@@ -73,6 +102,10 @@ function Page() {
       </button>
     );
 
+  }
+
+  if (forgotPasswordMutation.isPending) {
+    return <Loader />;
   }
 
   return (
