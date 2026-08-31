@@ -1,18 +1,30 @@
 'use client';
 
+import { useEffect } from 'react';
 import Link from 'next/link';
 import { X } from 'lucide-react';
 import { useFormik } from 'formik';
+import { useRouter, useSearchParams } from 'next/navigation';
+import toast from 'react-hot-toast';
 
 import { validateYupFormSchema } from '@/lib/utils/validation';
 
 import FormInputControl from '@/components/formControls/FormInputControl';
 
+import Loader from '@/app/loading';
+
 import { resetPasswordValidationSchema } from './utilities';
+import { useAuthResetPassword } from './service';
 
 import styles from './styles.module.css';
 
 function Page() {
+
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const token = searchParams.get('token');
+
+  const resetPasswordMutation = useAuthResetPassword();
 
   const formik = useFormik({
     initialValues: {
@@ -20,9 +32,39 @@ function Page() {
       confirmPassword: ''
     },
     validate: (values) => validateYupFormSchema(values, resetPasswordValidationSchema),
-    onSubmit: () => { }
+    onSubmit: handleFormSubmit
   });
   const formikValues = formik.values;
+
+  useEffect(() => {
+
+    if (!token) {
+      toast.error('Reset Password Failed, Pleas try again!');
+      router.push('/');
+      return;
+    };
+
+  }, [token]);
+
+  async function handleFormSubmit() {
+    try {
+
+      const response = await resetPasswordMutation.mutateAsync({ password: formikValues.password, token: token! });
+
+      if (response.status === 200) {
+        toast.success(response.data.message, {
+          duration: 10000
+        });
+        router.push('/auth/signin');
+      } else {
+        toast.error(response.data.message);
+        router.push('/');
+      }
+
+    } catch (error: any) {
+      toast.error(JSON.stringify(error));
+    }
+  }
 
   function renderSectionHeader() {
 
@@ -74,6 +116,10 @@ function Page() {
       </button>
     );
 
+  }
+
+  if (resetPasswordMutation.isPending) {
+    return <Loader />;
   }
 
   return (
