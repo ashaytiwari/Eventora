@@ -53,17 +53,18 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col">
         <ReactQueryProvider>
-          <Navbar />
+          <AppProvider>
+            <Navbar />
 
-          <div className="absolute inset-0 top-0 z-[-1] min-h-screen">
-            <LightRays {...lightRaysAttributes} />
-          </div>
+            <div className="absolute inset-0 top-0 z-[-1] min-h-screen">
+              <LightRays {...lightRaysAttributes} />
+            </div>
 
-          <main>
-            <AppProvider>
+            <main>
+
               {children}
-            </AppProvider>
-          </main>
+            </main>
+          </AppProvider>
         </ReactQueryProvider>
       </body>
     </html>
