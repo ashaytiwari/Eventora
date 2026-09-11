@@ -19,5 +19,12 @@ export const serverMessages = {
     resetPassword: {
       success: "Password reset successful. You can now login with your new password."
     }
+  },
+  admin: {
+    organizers: {
+      create: {
+        success: "Organizers created successfully.",
+      }
+    }
   }
 };

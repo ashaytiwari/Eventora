@@ -1,6 +1,6 @@
 import mongoose, { Model, Schema } from "mongoose";
 
-export interface IOrganizer extends Document {
+export interface IOrganization extends Document {
   organizationName: string;
   userId: mongoose.Types.ObjectId;
   about?: string;
@@ -9,7 +9,7 @@ export interface IOrganizer extends Document {
   address?: string;
 }
 
-const OrganizerSchema = new Schema<IOrganizer>(
+const OrganizationSchema = new Schema<IOrganization>(
   {
     organizationName: {
       type: String,
@@ -44,6 +44,6 @@ const OrganizerSchema = new Schema<IOrganizer>(
 );
 
 // Prevent OverwriteModelError in Next.js development server during hot reloading
-const Organizer: Model<IOrganizer> = mongoose.models.Organizer || mongoose.model<IOrganizer>('Organizer', OrganizerSchema);
+const Organization: Model<IOrganization> = mongoose.models.Organization || mongoose.model<IOrganization>('Organization', OrganizationSchema);
 
-export default Organizer;
+export default Organization;

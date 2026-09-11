@@ -12,3 +12,9 @@ export async function comparePassword(value: string, hash: string) {
 export function sha256Hash(value: any) {
   return CryptoJS.SHA256(JSON.stringify(value)).toString(CryptoJS.enc.Hex);
 }
+
+export function generateRandomString(length: number = 6) {
+  return CryptoJS.lib.WordArray.random(Math.ceil(length / 2))
+    .toString(CryptoJS.enc.Hex)
+    .slice(0, length);
+}
