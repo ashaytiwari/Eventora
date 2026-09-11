@@ -18,6 +18,7 @@ export interface IUser extends Document {
   lastLoginAt?: Date;
   createdAt: Date;
   updatedAt: Date;
+  mustChangePassword: boolean;
 }
 
 const UserSchema = new Schema<IUser>(
@@ -79,6 +80,10 @@ const UserSchema = new Schema<IUser>(
     lastLoginAt: {
       type: Date,
       default: null,
+    },
+    mustChangePassword: {
+      type: Boolean,
+      default: false,
     }
   },
   {
