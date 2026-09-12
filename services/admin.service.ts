@@ -1,8 +1,6 @@
 import { Types } from "mongoose";
-import { getServerSession } from 'next-auth';
 
 import { AddOrganizersDto } from "@/app/api/admin/organizers/organizers.dto";
-import { authOptions } from "@/app/api/auth/[...nextauth]/auth";
 
 import { AuthProvider, errorCodes, httpStatusCodes, UserRole, UserStatus } from "@/lib/constants";
 import { APIError, generateRandomString, hashPassword } from "@/lib/utils";
@@ -12,19 +10,7 @@ import { userRepository } from "@/repositories/UserRepository";
 
 class AdminService {
 
-  async addOrganizers(data: AddOrganizersDto) {
-
-    const session = await getServerSession(authOptions);
-
-    if (!session?.user.id || !session.user.email) {
-      throw new APIError(errorCodes.UNAUTHORIZED, httpStatusCodes.UNAUTHORIZED);
-    }
-
-    const isValidAdmin = await this.isValidAdmin(session.user.id);
-
-    if (!isValidAdmin) {
-      throw new APIError(errorCodes.UNAUTHORIZED, httpStatusCodes.UNAUTHORIZED);
-    }
+  async addOrganizers(data: AddOrganizersDto, userId: Types.ObjectId) {
 
     const existingUser = await userRepository.findByEmail(data.email);
 
@@ -41,7 +27,7 @@ class AdminService {
       email: data.email,
       password: hashedPassword,
       role: UserRole.EVENT_ORGANIZER,
-      createdBy: session.user.id,
+      createdBy: userId,
       providers: [AuthProvider.CREDENTIALS],
       status: UserStatus.ACTIVE,
       emailVerified: true,

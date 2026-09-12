@@ -1,8 +1,9 @@
-import { APIError, ApiResponse, connectDB, formatZodErrors } from "@/lib/utils";
-import { sendEmail } from "@/lib/utils/email";
-import { httpStatusCodes, serverMessages } from "@/lib/constants";
-
 import { adminService } from "@/services/admin.service";
+
+import { APIError, ApiResponse, connectDB, formatZodErrors } from "@/lib/utils";
+import { httpStatusCodes, serverMessages, UserRole } from "@/lib/constants";
+import { requireRole } from "@/lib/utils/apiMiddlewares";
+import { sendEmail } from "@/lib/utils/email";
 
 import { organizerOnboardingTemplate } from "@/templates/organizerOnboardingTemplate";
 
@@ -11,6 +12,8 @@ import { addOrganizersSchema } from "./organizers.dto";
 export async function POST(req: Request) {
   try {
     await connectDB();
+
+    const session = await requireRole([UserRole.SUPER_ADMIN]);
 
     const body = await req.json();
 
@@ -22,7 +25,7 @@ export async function POST(req: Request) {
 
     const validated = validationResult.data;
 
-    const organizerDetails = await adminService.addOrganizers(validated);
+    const organizerDetails = await adminService.addOrganizers(validated, session.user.id);
 
     const appURL = `${process.env.AUTH_URL}/auth/signin`;
 
