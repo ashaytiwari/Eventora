@@ -21,6 +21,7 @@ import { sendEmail } from "@/lib/utils/email";
 import { resetPasswordTemplate } from "@/templates/resetPasswordTemplate";
 
 import { verificationTokenService } from "./verificationToken.service";
+import { Types } from "mongoose";
 
 class AuthService {
 
@@ -118,6 +119,31 @@ class AuthService {
     }
 
     return true;
+  }
+
+  async changePassword(oldPassword: string, newPassword: string, userId: Types.ObjectId) {
+
+    const user = await userRepository.findByIdWithPassword(userId);
+
+    if (!user) {
+      throw new APIError(errorCodes.USER_NOT_FOUND, httpStatusCodes.NOT_FOUND);
+    }
+
+    const isPasswordValid = await comparePassword(oldPassword, user.password!);
+
+    if (!isPasswordValid) {
+      throw new APIError(serverMessages.users.login.invalidCredentials, httpStatusCodes.UNAUTHORIZED);
+    }
+
+    const hashedPassword = await hashPassword(newPassword);
+
+    const updatedUser = await userRepository.update(user._id, {
+      password: hashedPassword,
+      mustChangePassword: false,
+    });
+
+    return updatedUser;
+
   }
 
   async googleLogin(profile: GoogleProfile) {

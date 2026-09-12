@@ -17,6 +17,10 @@ export class UserRepository {
     }).select("+password");
   }
 
+  async findByIdWithPassword(id: mongoose.Types.ObjectId) {
+    return User.findById(id).select("+password");
+  }
+
   async findById(id: mongoose.Types.ObjectId) {
     return User.findById(id);
   }

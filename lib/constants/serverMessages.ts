@@ -18,6 +18,9 @@ export const serverMessages = {
     },
     resetPassword: {
       success: "Password reset successful. You can now login with your new password."
+    },
+    changePassword: {
+      success: "Password changed successfully."
     }
   },
   admin: {
