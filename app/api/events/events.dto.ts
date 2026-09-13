@@ -27,3 +27,12 @@ export const addEventSchema = z.object({
 });
 
 export type AddEventDto = z.infer<typeof addEventSchema>;
+
+export const getEventsSearchParamsSchema = z.object({
+  status: z.enum([EventStatus.DRAFT, EventStatus.PUBLISHED, EventStatus.CANCELLED, EventStatus.INACTIVE, 'ALL']),
+  searchText: z.union([z.string(), z.null()]).optional(),
+  page: z.coerce.number(),
+  limit: z.coerce.number(),
+});
+
+export type GetEventsSearchParamsDto = z.infer<typeof getEventsSearchParamsSchema>;

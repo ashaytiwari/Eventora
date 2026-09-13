@@ -1,4 +1,5 @@
 export const serverMessages = {
+  success: 'Success',
   validationError: 'Validation Error',
   users: {
     register: {
