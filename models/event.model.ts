@@ -51,7 +51,6 @@ const EventSchema = new Schema<IEvent>(
     artist: {
       name: {
         type: String,
-        required: [true, 'Artist name is required'],
         trim: true,
       },
       image: {

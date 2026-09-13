@@ -29,5 +29,10 @@ export const serverMessages = {
         success: "Organizers created successfully.",
       }
     }
+  },
+  events: {
+    create: {
+      success: "Event created successfully.",
+    }
   }
 };

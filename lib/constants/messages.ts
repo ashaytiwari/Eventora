@@ -9,6 +9,12 @@ export const messages = {
     passwordMustBeMin8CharLong: "Password must be minimum 8 char long",
     passwordMustNotExceed100Chars: "Password must not exceed 100 chars",
     organizationNameMustBeAtleast2CharLong: "Organization name must be at least 2 characters long",
+  },
+
+  createEvent: {
+    titleMustBeAtleast2CharLong: "Title must be at least 2 characters long",
+    aboutMustBeAtleast20CharLong: "About must be at least 20 characters long",
+
   }
 
 };
