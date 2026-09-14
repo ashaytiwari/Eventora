@@ -5,12 +5,14 @@ import { signOut, useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LogOut, User, Calendar, Users, ShieldCheck } from "lucide-react";
+import { LogOut, User, ShieldCheck } from "lucide-react";
 
 import { UserRole } from "@/lib/constants";
 import { cn } from "@/lib/utils/common";
 
-const AdminNavbar = () => {
+import { getUserNavbarLinks } from "./navLinks";
+
+const UsersNavbar = () => {
 
   const pathname = usePathname();
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
@@ -18,7 +20,7 @@ const AdminNavbar = () => {
 
   const { data: session }: any = useSession();
   const user = session?.user;
-  const userName = user?.name || "Super Admin";
+  const userName = `${user?.firstname} ${user?.lastname}` || "Super Admin";
   const userEmail = user?.email || "admin@eventora.com";
   const userImage = user?.image;
   const userRole = (user?.role as UserRole) || UserRole.SUPER_ADMIN;
@@ -50,21 +52,6 @@ const AdminNavbar = () => {
     };
 
   }, []);
-
-  const navLinks = [
-    {
-      name: "Events",
-      href: "/admin/events",
-      icon: Calendar,
-      isActive: pathname === "/admin/events" || pathname === "/admin",
-    },
-    {
-      name: "Users",
-      href: "/admin/users",
-      icon: Users,
-      isActive: pathname === "/admin/users",
-    },
-  ];
 
   const logoLinkAttributes = {
     href: "/admin",
@@ -112,6 +99,8 @@ const AdminNavbar = () => {
   }
 
   function renderNavLinks() {
+
+    const navLinks = getUserNavbarLinks(pathname, userRole);
 
     return (
       <div className="flex items-center gap-2">
@@ -173,6 +162,21 @@ const AdminNavbar = () => {
 
   }
 
+  function renderSheildLabel() {
+
+    if (userRole !== UserRole.SUPER_ADMIN) {
+      return;
+    }
+
+    return (
+      <div className="flex items-center gap-1 mt-1 text-[10px] text-primary font-mono bg-primary/10 px-2 py-0.5 rounded-full w-fit border border-primary/20">
+        <ShieldCheck className="w-3 h-3" />
+
+        <span>Super Admin</span>
+      </div>
+    );
+  }
+
   function renderAvatarPopover() {
 
     if (!isPopoverOpen) {
@@ -201,11 +205,7 @@ const AdminNavbar = () => {
 
             <p className="text-xs text-light-200 truncate">{userEmail}</p>
 
-            <div className="flex items-center gap-1 mt-1 text-[10px] text-primary font-mono bg-primary/10 px-2 py-0.5 rounded-full w-fit border border-primary/20">
-              <ShieldCheck className="w-3 h-3" />
-
-              <span>Super Admin</span>
-            </div>
+            {renderSheildLabel()}
           </div>
         </div>
 
@@ -249,4 +249,4 @@ const AdminNavbar = () => {
 
 };
 
-export default AdminNavbar;
+export default UsersNavbar;

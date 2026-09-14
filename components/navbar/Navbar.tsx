@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-import AdminNavbar from "@/components/navbar/AdminNavbar";
+import UsersNavbar from "@/components/navbar/UsersNavbar";
 
 import { UserRole } from "@/lib/constants";
 
@@ -20,8 +20,8 @@ const Navbar = () => {
     return null;
   }
 
-  if (pathname.startsWith('/admin') || userRole === UserRole.SUPER_ADMIN) {
-    return <AdminNavbar />;
+  if (userRole) {
+    return <UsersNavbar />;
   }
 
   const logoLinkAttributes = {
