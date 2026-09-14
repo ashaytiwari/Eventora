@@ -8,6 +8,7 @@ import {
   AlertCircle,
   Inbox,
   Plus,
+  Edit,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils/common";
@@ -57,7 +58,7 @@ const EventsTable = ({
   };
 
   const createEventLinkAttributes = {
-    href: "/organizer/events/new",
+    href: "/organizer/events/editor",
     className:
       "inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold rounded-lg bg-primary text-black hover:bg-primary/90 transition-colors shadow-[0_0_12px_rgba(93,254,202,0.3)] cursor-pointer",
   };
@@ -132,7 +133,13 @@ const EventsTable = ({
     const viewLinkAttributes = {
       href: `/events/${event._id}`,
       className:
-        "inline-flex items-center gap-1 text-xs text-light-200 hover:text-primary transition-colors py-1 px-2.5 rounded-md hover:bg-dark-200/60 border border-transparent hover:border-primary/20",
+        "inline-flex items-center gap-1 text-xs text-light-200 hover:text-white transition-colors py-1 px-2.5 rounded-md hover:bg-dark-200/60 border border-transparent hover:border-white/10",
+    };
+
+    const editLinkAttributes = {
+      href: `/organizer/events/editor?id=${event._id}`,
+      className:
+        "inline-flex items-center gap-1 text-xs text-primary hover:text-primary/90 transition-colors py-1 px-2.5 rounded-md hover:bg-primary/10 border border-transparent hover:border-primary/20 font-medium",
     };
 
     return (
@@ -214,11 +221,19 @@ const EventsTable = ({
         </td>
 
         <td className="py-4 px-5 text-right">
-          <Link {...viewLinkAttributes}>
-            <span>View</span>
+          <div className="inline-flex items-center gap-1.5 justify-end">
+            <Link {...editLinkAttributes}>
+              <Edit className="w-3 h-3" />
 
-            <ExternalLink className="w-3 h-3" />
-          </Link>
+              <span>Edit</span>
+            </Link>
+
+            <Link {...viewLinkAttributes}>
+              <span>View</span>
+
+              <ExternalLink className="w-3 h-3" />
+            </Link>
+          </div>
         </td>
       </tr>
     );

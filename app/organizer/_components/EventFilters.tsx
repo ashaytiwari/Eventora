@@ -35,7 +35,7 @@ const EventFilters = ({
   const isFiltered = searchText.trim().length > 0 || selectedStatus !== "ALL";
 
   const addEventLinkAttributes = {
-    href: "/organizer/events/new",
+    href: "/organizer/events/editor",
     className: cn(
       "w-full flex items-center justify-center gap-2.5 px-5 py-3.5 rounded-xl font-semibold text-black text-sm sm:text-base",
       "bg-primary hover:bg-primary/90 transition-all duration-200 cursor-pointer",
