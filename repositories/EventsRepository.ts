@@ -92,6 +92,18 @@ export class EventsRepository {
 
   }
 
+  async findById(id: string) {
+
+    return Event.findById(id);
+
+  }
+
+  async updateById(id: string, data: any) {
+
+    return Event.findByIdAndUpdate(id, data, { new: true });
+
+  }
+
 }
 
 export const eventsRepository = new EventsRepository();

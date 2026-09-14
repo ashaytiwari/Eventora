@@ -36,6 +36,18 @@ class EventsService {
 
   }
 
+  async getById(id: string) {
+
+    return eventsRepository.findById(id);
+
+  }
+
+  async update(id: string, data: any) {
+
+    return eventsRepository.updateById(id, data);
+
+  }
+
 }
 
 export const eventsService = new EventsService();
