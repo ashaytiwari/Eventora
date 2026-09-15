@@ -31,6 +31,7 @@ class AdminService {
       providers: [AuthProvider.CREDENTIALS],
       status: UserStatus.ACTIVE,
       emailVerified: true,
+      mustChangePassword: true
     });
 
     const newOrganization = await organizationRepository.create({
