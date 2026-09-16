@@ -86,3 +86,54 @@ export async function PUT(
   }
 
 }
+
+export async function PATCH(
+  req: NextRequest,
+  context: { params: Promise<{ id: string }> }
+) {
+
+  try {
+    await connectDB();
+
+    const session = await requireRole([UserRole.EVENT_ORGANIZER, UserRole.SUPER_ADMIN]);
+
+    const { id } = await context.params;
+
+    const existingEvent = await eventsService.getById(id);
+
+    if (!existingEvent) {
+      return ApiResponse.error("Event not found", httpStatusCodes.NOT_FOUND);
+    }
+
+    if (
+      session.user.role === UserRole.EVENT_ORGANIZER &&
+      existingEvent.organizerId.toString() !== session.user.id
+    ) {
+      return ApiResponse.error("Unauthorized to edit this event", httpStatusCodes.FORBIDDEN);
+    }
+
+    const body = await req.json();
+
+    const patchEventSchema = addEventSchema.partial();
+    const validationResult = patchEventSchema.safeParse(body);
+
+    if (!validationResult.success) {
+      return ApiResponse.validation(formatZodErrors(validationResult as any));
+    }
+
+    const updatedEvent = await eventsService.update(id, validationResult.data);
+
+    return ApiResponse.success(updatedEvent, "Event updated successfully", httpStatusCodes.SUCCESS);
+
+  } catch (error: any) {
+
+    if (error instanceof APIError) {
+      return ApiResponse.error(error.message, error.statusCode);
+    }
+
+    return ApiResponse.error(error);
+
+  }
+
+}
+

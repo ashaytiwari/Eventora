@@ -109,7 +109,6 @@ const UsersNavbar = () => {
           const Icon = link.icon;
 
           const linkAttributes = {
-            key: link.name,
             href: link.href,
             className: cn(
               "flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-200",
@@ -120,7 +119,7 @@ const UsersNavbar = () => {
           };
 
           return (
-            <Link {...linkAttributes}>
+            <Link key={link.name} {...linkAttributes}>
               <Icon className="w-4 h-4" />
 
               <span>{link.name}</span>
