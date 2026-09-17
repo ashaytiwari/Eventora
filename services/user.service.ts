@@ -44,6 +44,28 @@ class UserService {
         hasPreviousPage: data.page > 1,
       },
     };
+
+  }
+
+  async updateStatus(userId: Types.ObjectId, status: any) {
+
+    const user = await userRepository.findById(userId);
+
+    if (!user) {
+      throw new APIError(errorCodes.USER_NOT_FOUND, httpStatusCodes.NOT_FOUND);
+    }
+
+    const updatedUser = await userRepository.update(userId, { status });
+
+    return {
+      _id: updatedUser?._id,
+      firstname: updatedUser?.firstname,
+      lastname: updatedUser?.lastname,
+      email: updatedUser?.email,
+      role: updatedUser?.role,
+      status: updatedUser?.status,
+    };
+
   }
 
 }

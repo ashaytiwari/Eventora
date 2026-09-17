@@ -30,8 +30,9 @@ export class UserRepository {
     return User.findById(id);
   }
 
-  async update(id: mongoose.Types.ObjectId, data: any) {
-    return User.findByIdAndUpdate(id, data, { new: true });
+  async update(id: string | mongoose.Types.ObjectId, data: any) {
+    const objectId = typeof id === "string" ? new mongoose.Types.ObjectId(id) : id;
+    return User.findByIdAndUpdate(objectId, data, { new: true });
   }
 
   async delete(id: string) {
@@ -59,17 +60,44 @@ export class UserRepository {
     }
 
     if (searchText) {
-      match.fullName = {
-        $regex: searchText,
-        $options: 'i'
-      }
+      match.$or = [
+        {
+          fullName: {
+            $regex: searchText,
+            $options: 'i'
+          }
+        },
+        {
+          email: {
+            $regex: searchText,
+            $options: 'i'
+          }
+        },
+        {
+          "organization.organizationName": {
+            $regex: searchText,
+            $options: 'i'
+          }
+        }
+      ];
     }
 
     const pipeline: mongoose.PipelineStage[] = [
       {
+        $lookup: {
+          from: "organizations",
+          localField: "_id",
+          foreignField: "userId",
+          as: "organizationDetails"
+        }
+      },
+      {
         $addFields: {
           fullName: {
             $concat: ["$firstname", " ", "$lastname"]
+          },
+          organization: {
+            $arrayElemAt: ["$organizationDetails", 0]
           }
         }
       },
@@ -93,6 +121,7 @@ export class UserRepository {
             {
               $project: {
                 password: 0,
+                organizationDetails: 0,
               },
             },
           ],

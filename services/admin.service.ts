@@ -1,6 +1,6 @@
 import { Types } from "mongoose";
 
-import { AddOrganizersDto } from "@/app/api/admin/organizers/organizers.dto";
+import { AddOrganizersDto, UpdateOrganizerDto } from "@/app/api/admin/organizers/organizers.dto";
 
 import { AuthProvider, errorCodes, httpStatusCodes, UserRole, UserStatus } from "@/lib/constants";
 import { APIError, generateRandomString, hashPassword } from "@/lib/utils";
@@ -48,12 +48,95 @@ class AdminService {
     };
   }
 
+  async getOrganizerById(userId: string | Types.ObjectId) {
+
+    const objectId = typeof userId === "string" ? new Types.ObjectId(userId) : userId;
+    const user = await userRepository.findById(objectId);
+
+    if (!user) {
+      throw new APIError(errorCodes.USER_NOT_FOUND, httpStatusCodes.NOT_FOUND);
+    }
+
+    const organization = await organizationRepository.findByUserId(objectId);
+
+    return {
+      _id: user._id,
+      firstname: user.firstname,
+      lastname: user.lastname,
+      email: user.email,
+      role: user.role,
+      status: user.status,
+      emailVerified: user.emailVerified,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+      organization: organization
+        ? {
+            organizationName: organization.organizationName,
+            about: organization.about,
+            website: organization.website,
+            tagLine: organization.tagLine,
+            address: organization.address,
+          }
+        : null,
+    };
+
+  }
+
+  async updateOrganizer(userId: string | Types.ObjectId, data: UpdateOrganizerDto) {
+
+    const objectId = typeof userId === "string" ? new Types.ObjectId(userId) : userId;
+    const user = await userRepository.findById(objectId);
+
+    if (!user) {
+      throw new APIError(errorCodes.USER_NOT_FOUND, httpStatusCodes.NOT_FOUND);
+    }
+
+    const userUpdatePayload: Record<string, any> = {
+      firstname: data.firstname,
+      lastname: data.lastname,
+    };
+
+    if (data.status) {
+      userUpdatePayload.status = data.status;
+    }
+
+    const updatedUser = await userRepository.update(objectId, userUpdatePayload);
+
+    const organizationUpdatePayload: Record<string, any> = {
+      organizationName: data.organizationName,
+    };
+
+    if (data.about !== undefined) {
+      organizationUpdatePayload.about = data.about;
+    }
+
+    if (data.website !== undefined) {
+      organizationUpdatePayload.website = data.website;
+    }
+
+    if (data.tagLine !== undefined) {
+      organizationUpdatePayload.tagLine = data.tagLine;
+    }
+
+    if (data.address !== undefined) {
+      organizationUpdatePayload.address = data.address;
+    }
+
+    const updatedOrganization = await organizationRepository.updateByUserId(objectId, organizationUpdatePayload);
+
+    return {
+      user: updatedUser,
+      organization: updatedOrganization,
+    };
+
+  }
+
   async isValidAdmin(id: Types.ObjectId) {
 
     const user = await userRepository.findById(id);
 
     if (!user || user.role !== UserRole.SUPER_ADMIN) {
-      false;
+      return false;
     }
 
     return true;

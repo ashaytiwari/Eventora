@@ -1,16 +1,12 @@
 import { NextRequest } from "next/server";
-import { Types } from "mongoose";
-import { z } from "zod";
+
+import { adminService } from "@/services/admin.service";
 
 import { APIError, ApiResponse, connectDB, formatZodErrors } from "@/lib/utils";
+import { httpStatusCodes, serverMessages, UserRole } from "@/lib/constants";
 import { requireRole } from "@/lib/utils/apiMiddlewares";
-import { httpStatusCodes, serverMessages, UserRole, UserStatus } from "@/lib/constants";
 
-import { userService } from "@/services/user.service";
-
-const updateUserStatusSchema = z.object({
-  status: z.enum([UserStatus.ACTIVE, UserStatus.SUSPENDED]),
-});
+import { updateOrganizerSchema } from "../organizers.dto";
 
 export async function GET(
   req: NextRequest,
@@ -21,13 +17,13 @@ export async function GET(
 
     await connectDB();
 
-    await requireRole([UserRole.EVENT_ORGANIZER, UserRole.SUPER_ADMIN, UserRole.EVENT_ATTENDEE]);
+    await requireRole([UserRole.SUPER_ADMIN]);
 
     const { id } = await context.params;
 
-    const userProfile = await userService.getProfile(new Types.ObjectId(id));
+    const organizerDetails = await adminService.getOrganizerById(id);
 
-    return ApiResponse.success(userProfile, serverMessages.success, httpStatusCodes.SUCCESS);
+    return ApiResponse.success(organizerDetails, serverMessages.success, httpStatusCodes.SUCCESS);
 
   } catch (error: any) {
 
@@ -38,9 +34,10 @@ export async function GET(
     return ApiResponse.error(error);
 
   }
+
 }
 
-export async function PATCH(
+export async function PUT(
   req: NextRequest,
   context: { params: Promise<{ id: string }> }
 ) {
@@ -55,15 +52,17 @@ export async function PATCH(
 
     const body = await req.json();
 
-    const validationResult = updateUserStatusSchema.safeParse(body);
+    const validationResult = updateOrganizerSchema.safeParse(body);
 
     if (!validationResult.success) {
       return ApiResponse.validation(formatZodErrors(validationResult as any));
     }
 
-    const updatedUser = await userService.updateStatus(new Types.ObjectId(id), validationResult.data.status);
+    const validated = validationResult.data;
 
-    return ApiResponse.success(updatedUser, "User status updated successfully", httpStatusCodes.SUCCESS);
+    const updatedData = await adminService.updateOrganizer(id, validated);
+
+    return ApiResponse.success(updatedData, "Organizer updated successfully", httpStatusCodes.SUCCESS);
 
   } catch (error: any) {
 
