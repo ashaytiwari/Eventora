@@ -1,5 +1,10 @@
-import User from "@/models/user.model";
 import mongoose from "mongoose";
+
+import { GetUsersSearchParamsDto } from "@/app/api/users/users.dto";
+
+import User from "@/models/user.model";
+
+import { UserRole } from "@/lib/constants";
 
 export class UserRepository {
 
@@ -31,6 +36,93 @@ export class UserRepository {
 
   async delete(id: string) {
     return User.findByIdAndDelete(id);
+  }
+
+  async findAll(data: GetUsersSearchParamsDto) {
+
+    const { searchText, status, role, page, limit } = data;
+
+    const skip = (page - 1) * limit;
+
+    const match: Record<string, any> = {
+      role: {
+        $ne: UserRole.SUPER_ADMIN
+      }
+    };
+
+    if (role && role !== 'ALL') {
+      match.role = role;
+    }
+
+    if (status && status !== 'ALL') {
+      match.status = status;
+    }
+
+    if (searchText) {
+      match.fullName = {
+        $regex: searchText,
+        $options: 'i'
+      }
+    }
+
+    const pipeline: mongoose.PipelineStage[] = [
+      {
+        $addFields: {
+          fullName: {
+            $concat: ["$firstname", " ", "$lastname"]
+          }
+        }
+      },
+      {
+        $match: match
+      },
+      {
+        $sort: {
+          createdAt: -1,
+        },
+      },
+      {
+        $facet: {
+          data: [
+            {
+              $skip: skip,
+            },
+            {
+              $limit: limit,
+            },
+            {
+              $project: {
+                password: 0,
+              },
+            },
+          ],
+
+          totalCount: [
+            {
+              $count: 'count',
+            },
+          ],
+        },
+      },
+      {
+        $project: {
+          data: 1,
+          total: {
+            $ifNull: [
+              {
+                $arrayElemAt: ['$totalCount.count', 0],
+              },
+              0,
+            ],
+          },
+        },
+      },
+    ];
+
+    const [result] = await User.aggregate(pipeline);
+
+    return result;
+
   }
 }
 

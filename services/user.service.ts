@@ -4,6 +4,7 @@ import { errorCodes, httpStatusCodes } from "@/lib/constants";
 import { APIError } from "@/lib/utils";
 
 import { userRepository } from "@/repositories/UserRepository";
+import { GetUsersSearchParamsDto } from "@/app/api/users/users.dto";
 
 class UserService {
 
@@ -23,6 +24,25 @@ class UserService {
       status: user.status,
       emailVerified: user.emailVerified,
       mustChangePassword: user.mustChangePassword,
+    };
+  }
+
+  async getAll(data: GetUsersSearchParamsDto) {
+
+    const usersResult = await userRepository.findAll(data);
+
+    const total = usersResult?.total ?? 0;
+
+    return {
+      users: usersResult?.data ?? [],
+      pagination: {
+        page: data.page,
+        limit: data.limit,
+        total,
+        totalPages: Math.ceil(total / data.limit),
+        hasNextPage: data.page < Math.ceil(total / data.limit),
+        hasPreviousPage: data.page > 1,
+      },
     };
   }
 
