@@ -1,10 +1,16 @@
-import { Calendar, Users, UserRound } from "lucide-react";
+import { Calendar, Users, LayoutDashboard } from "lucide-react";
 
 import { UserRole } from "@/lib/constants";
 
 export function getUserNavbarLinks(pathname: string, role: string) {
 
   const adminNavLinks = [
+    {
+      name: "Dashboard",
+      href: "/admin",
+      icon: LayoutDashboard,
+      isActive: pathname === "/admin",
+    },
     {
       name: "Events",
       href: "/admin/events",

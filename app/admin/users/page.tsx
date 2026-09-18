@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { Users, Shield, Sparkles } from "lucide-react";
 
 import ProtectedRouteAuthGuard from "@/components/authGuards/ProtectedRouteAuthGuard";
@@ -16,14 +17,31 @@ import { IUserListItem, UserFilterRole, UserFilterStatus } from "./_components/t
 
 const AdminUsersPage = () => {
 
+  const searchParams = useSearchParams();
+  const roleParam = (searchParams.get("role") as UserFilterRole) || "ALL";
+  const statusParam = (searchParams.get("status") as UserFilterStatus) || "ALL";
+
   const [searchText, setSearchText] = useState("");
-  const [selectedRole, setSelectedRole] = useState<UserFilterRole>("ALL");
-  const [selectedStatus, setSelectedStatus] = useState<UserFilterStatus>("ALL");
+  const [selectedRole, setSelectedRole] = useState<UserFilterRole>(roleParam);
+  const [selectedStatus, setSelectedStatus] = useState<UserFilterStatus>(statusParam);
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [selectedUserForEdit, setSelectedUserForEdit] = useState<IUserListItem | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+
+  useEffect(() => {
+
+    if (roleParam && roleParam !== selectedRole) {
+      setSelectedRole(roleParam);
+    }
+
+    if (statusParam && statusParam !== selectedStatus) {
+      setSelectedStatus(statusParam);
+    }
+
+  }, [roleParam, statusParam]);
+
 
   const { data, isLoading, isError, refetch } = useAdminUsers({
     role: selectedRole,
