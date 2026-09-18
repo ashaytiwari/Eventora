@@ -7,6 +7,7 @@ import { APIError, generateRandomString, hashPassword } from "@/lib/utils";
 
 import { organizationRepository } from "@/repositories/OrganizationRepository";
 import { userRepository } from "@/repositories/UserRepository";
+import { adminRepository } from "@/repositories/AdminRepository";
 
 class AdminService {
 
@@ -71,12 +72,12 @@ class AdminService {
       updatedAt: user.updatedAt,
       organization: organization
         ? {
-            organizationName: organization.organizationName,
-            about: organization.about,
-            website: organization.website,
-            tagLine: organization.tagLine,
-            address: organization.address,
-          }
+          organizationName: organization.organizationName,
+          about: organization.about,
+          website: organization.website,
+          tagLine: organization.tagLine,
+          address: organization.address,
+        }
         : null,
     };
 
@@ -141,6 +142,11 @@ class AdminService {
 
     return true;
 
+  }
+
+  async getActivityMetrics() {
+    const metrics = await adminRepository.getDashboardMetrics();
+    return metrics;
   }
 
 }
