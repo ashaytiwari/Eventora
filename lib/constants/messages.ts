@@ -14,7 +14,14 @@ export const messages = {
   createEvent: {
     titleMustBeAtleast2CharLong: "Title must be at least 2 characters long",
     aboutMustBeAtleast20CharLong: "About must be at least 20 characters long",
+  },
 
+  organization: {
+    organizationNameMustBeAtleast2CharLOng: "Organization Name must be at least 2 characters long",
+    aboutMustBeAtleast20CharLong: "About must be at least 20 characters long",
+    websiteMustBeValid: "Website must be a valid URL",
+    tagLineMustBeAtleast2CharLong: "Tag Line must be at least 2 characters long",
+    addressMustBeAtleast2CharLong: "Address must be at least 2 characters long",
   }
 
 };

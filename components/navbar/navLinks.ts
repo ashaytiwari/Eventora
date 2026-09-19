@@ -1,4 +1,4 @@
-import { Calendar, Users, LayoutDashboard } from "lucide-react";
+import { Calendar, Users, LayoutDashboard, Building2 } from "lucide-react";
 
 import { UserRole } from "@/lib/constants";
 
@@ -25,6 +25,21 @@ export function getUserNavbarLinks(pathname: string, role: string) {
     },
   ];
 
+  const organizerNavLinks = [
+    {
+      name: "My Events",
+      href: "/organizer",
+      icon: Calendar,
+      isActive: pathname === "/organizer" || pathname === "/organizer/events",
+    },
+    {
+      name: "Profile",
+      href: "/organizer/profile",
+      icon: Building2,
+      isActive: pathname === "/organizer/profile",
+    },
+  ];
+
   const eventAttendeesNavLinks = [
     {
       name: "Events",
@@ -36,6 +51,8 @@ export function getUserNavbarLinks(pathname: string, role: string) {
 
   if (role === UserRole.SUPER_ADMIN) {
     return adminNavLinks;
+  } else if (role === UserRole.EVENT_ORGANIZER) {
+    return organizerNavLinks;
   } else if (role === UserRole.EVENT_ATTENDEE) {
     return eventAttendeesNavLinks;
   } else {

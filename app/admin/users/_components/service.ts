@@ -87,12 +87,13 @@ export function useUpdateOrganizer() {
 
   return useMutation({
     mutationFn: async ({ userId, data }: UpdateOrganizerParams) => {
-      const response = await axiosInstance.put(`/admin/organizers/${userId}`, data);
+      const response = await axiosInstance.patch(`/organizers/${userId}`, data);
       return response.data;
     },
-    onSuccess: () => {
+    onSuccess: (data, variables) => {
       toast.success("Organizer details updated successfully");
       queryClient.invalidateQueries({ queryKey: ["admin-users"] });
+      queryClient.invalidateQueries({ queryKey: ["organizer-profile", variables.userId] });
     },
     onError: (error: unknown) => {
       const errorMsg =
@@ -101,6 +102,19 @@ export function useUpdateOrganizer() {
           : "Failed to update organizer details";
       toast.error(errorMsg || "Failed to update organizer details");
     },
+  });
+
+}
+
+export function useOrganizerById(id?: string | null) {
+
+  return useQuery({
+    queryKey: ["organizer-profile", id],
+    queryFn: async () => {
+      const response = await axiosInstance.get(`/organizers/${id}`);
+      return response.data?.data;
+    },
+    enabled: Boolean(id),
   });
 
 }

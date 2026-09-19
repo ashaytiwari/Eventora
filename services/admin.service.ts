@@ -1,6 +1,7 @@
 import { Types } from "mongoose";
 
-import { AddOrganizersDto, UpdateOrganizerDto } from "@/app/api/admin/organizers/organizers.dto";
+import { AddOrganizersDto } from "@/app/api/admin/organizers/organizers.dto";
+import { UpdateOrganizerDto } from "@/app/api/organizers/[id]/organizers.dto";
 
 import { AuthProvider, errorCodes, httpStatusCodes, UserRole, UserStatus } from "@/lib/constants";
 import { APIError, generateRandomString, hashPassword } from "@/lib/utils";
@@ -92,20 +93,30 @@ class AdminService {
       throw new APIError(errorCodes.USER_NOT_FOUND, httpStatusCodes.NOT_FOUND);
     }
 
-    const userUpdatePayload: Record<string, any> = {
-      firstname: data.firstname,
-      lastname: data.lastname,
-    };
+    const userUpdatePayload: Record<string, any> = {};
 
-    if (data.status) {
+    if (data.firstname !== undefined) {
+      userUpdatePayload.firstname = data.firstname;
+    }
+
+    if (data.lastname !== undefined) {
+      userUpdatePayload.lastname = data.lastname;
+    }
+
+    if (data.status !== undefined) {
       userUpdatePayload.status = data.status;
     }
 
-    const updatedUser = await userRepository.update(objectId, userUpdatePayload);
+    let updatedUser: any = user;
+    if (Object.keys(userUpdatePayload).length > 0) {
+      updatedUser = await userRepository.update(objectId, userUpdatePayload);
+    }
 
-    const organizationUpdatePayload: Record<string, any> = {
-      organizationName: data.organizationName,
-    };
+    const organizationUpdatePayload: Record<string, any> = {};
+
+    if (data.organizationName !== undefined) {
+      organizationUpdatePayload.organizationName = data.organizationName;
+    }
 
     if (data.about !== undefined) {
       organizationUpdatePayload.about = data.about;
@@ -123,7 +134,12 @@ class AdminService {
       organizationUpdatePayload.address = data.address;
     }
 
-    const updatedOrganization = await organizationRepository.updateByUserId(objectId, organizationUpdatePayload);
+    let updatedOrganization = null;
+    if (Object.keys(organizationUpdatePayload).length > 0) {
+      updatedOrganization = await organizationRepository.updateByUserId(objectId, organizationUpdatePayload);
+    } else {
+      updatedOrganization = await organizationRepository.findByUserId(objectId);
+    }
 
     return {
       user: updatedUser,

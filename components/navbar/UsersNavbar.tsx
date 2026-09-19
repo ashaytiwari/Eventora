@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { signOut, useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { LogOut, User, ShieldCheck } from "lucide-react";
 
 import { UserRole } from "@/lib/constants";
@@ -14,7 +14,9 @@ import { getUserNavbarLinks } from "./navLinks";
 
 const UsersNavbar = () => {
 
+  const router = useRouter();
   const pathname = usePathname();
+
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const popoverRef = useRef<HTMLDivElement>(null);
 
@@ -54,7 +56,7 @@ const UsersNavbar = () => {
   }, []);
 
   const logoLinkAttributes = {
-    href: "/admin",
+    href: "/",
     className: "logo flex flex-row items-center gap-2 transition-opacity hover:opacity-90",
   };
 
@@ -170,7 +172,6 @@ const UsersNavbar = () => {
     return (
       <div className="flex items-center gap-1 mt-1 text-[10px] text-primary font-mono bg-primary/10 px-2 py-0.5 rounded-full w-fit border border-primary/20">
         <ShieldCheck className="w-3 h-3" />
-
         <span>Super Admin</span>
       </div>
     );
@@ -182,9 +183,21 @@ const UsersNavbar = () => {
       return null;
     }
 
+    const userProfileControlAttributes = {
+      className:
+        "flex items-center gap-3 p-2.5 rounded-lg bg-dark-200/50 mb-2 border border-white/5 hover:bg-dark-200/90 hover:border-primary/30 transition-all duration-150 cursor-pointer active:scale-[0.98] select-none",
+      onClick() {
+        if (userRole === UserRole.EVENT_ORGANIZER) {
+          router.push('/organizer/profile');
+          return;
+        }
+      },
+    };
+
     return (
       <div className="absolute right-0 mt-3 w-64 rounded-xl bg-dark-100/95 backdrop-blur-xl border border-border-dark card-shadow p-3 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
-        <div className="flex items-center gap-3 p-2 rounded-lg bg-dark-200/50 mb-2 border border-white/5">
+
+        <div {...userProfileControlAttributes}>
           <div className="w-10 h-10 rounded-full bg-primary/20 border border-primary/40 flex items-center justify-center text-primary font-bold text-base flex-shrink-0">
             {userImage ? (
               <Image
