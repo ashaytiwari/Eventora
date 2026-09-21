@@ -13,26 +13,21 @@ export const responseHandler = (response: AxiosResponse) => {
 export const errorHandler = async (error: AxiosError) => {
 
   if (error.code === "ERR_NETWORK") {
-    return alert("Network Error. Your request can't be processed.");
+    alert("Network Error. Your request can't be processed.");
+    return Promise.reject(error);
   }
 
   const _error: any = error.response;
 
   if (!_error) {
-    return error;
+    return Promise.reject(error);
   }
 
-  console.log(_error);
-
-  if (_error.data.statusCode === 401) {
+  if (_error.status === 401 || _error.data?.statusCode === 401) {
     await handleUnauthorized();
-    return _error;
+    return Promise.reject(error);
   }
 
-  if (_error.data.statusCode !== 500) {
-    return _error;
-  }
-
-  throw new Error(`Something went wrong. Internal server error: ${_error}`);
+  return Promise.reject(error);
 
 };

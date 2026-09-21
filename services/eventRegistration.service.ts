@@ -43,6 +43,21 @@ class EventRegistrationService {
 
   }
 
+  async isRegistered(userId: Types.ObjectId, eventId: string): Promise<boolean> {
+
+    if (!Types.ObjectId.isValid(eventId)) {
+      return false;
+    }
+
+    const registration = await eventRegistrationRepository.findByEventIdAndUserId(
+      new Types.ObjectId(eventId),
+      new Types.ObjectId(userId)
+    );
+
+    return Boolean(registration);
+
+  }
+
 }
 
 export const eventRegistrationService = new EventRegistrationService();

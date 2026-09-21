@@ -186,7 +186,35 @@ export class EventsRepository {
 
   async findById(id: string) {
 
-    return Event.findById(id);
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return null;
+    }
+
+    const pipeline: mongoose.PipelineStage[] = [
+      {
+        $match: {
+          _id: new Types.ObjectId(id),
+        },
+      },
+      {
+        $lookup: {
+          from: 'organizations',
+          localField: 'organizerId',
+          foreignField: 'userId',
+          as: 'organization',
+        },
+      },
+      {
+        $unwind: {
+          path: '$organization',
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+    ];
+
+    const [result] = await Event.aggregate(pipeline);
+
+    return result || null;
 
   }
 
