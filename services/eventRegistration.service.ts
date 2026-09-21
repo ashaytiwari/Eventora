@@ -1,6 +1,7 @@
 import { Types } from "mongoose";
 
 import { EventRegisterDto } from "@/app/api/events/register/eventRegister.dto";
+import { GetMyEventsSearchParamsDto } from "@/app/api/events/my-events/myEvents.dto";
 
 import { errorCodes, httpStatusCodes } from "@/lib/constants";
 import { EventStatus } from "@/lib/constants/eventStatus";
@@ -55,6 +56,29 @@ class EventRegistrationService {
     );
 
     return Boolean(registration);
+
+  }
+
+  async getMyEvents(userId: Types.ObjectId, data: GetMyEventsSearchParamsDto) {
+
+    const results = await eventRegistrationRepository.findUserRegisteredEvents(
+      userId,
+      data
+    );
+
+    const total = results?.total ?? 0;
+
+    return {
+      registrations: results?.data ?? [],
+      pagination: {
+        page: data.page,
+        limit: data.limit,
+        total,
+        totalPages: Math.ceil(total / data.limit),
+        hasNextPage: data.page < Math.ceil(total / data.limit),
+        hasPreviousPage: data.page > 1,
+      },
+    };
 
   }
 
