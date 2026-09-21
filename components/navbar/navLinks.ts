@@ -43,9 +43,9 @@ export function getUserNavbarLinks(pathname: string, role: string) {
   const eventAttendeesNavLinks = [
     {
       name: "Events",
-      href: "/admin/events",
+      href: "/attendee",
       icon: Calendar,
-      isActive: pathname === "/admin/events" || pathname === "/admin",
+      isActive: pathname === "/attendee"
     },
   ];
 
