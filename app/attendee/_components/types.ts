@@ -65,3 +65,23 @@ export interface EventRegistrationPayload {
     gender: Gender;
   }>;
 }
+
+export interface RegisteredEventRecord {
+  _id: string;
+  eventId: string;
+  userId: string;
+  registeredAt: string;
+  attendeeDetails: Array<{
+    fullName: string;
+    age: number;
+    gender: Gender;
+  }>;
+  event: AttendeeEvent;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface MyEventsResponse {
+  registrations: RegisteredEventRecord[];
+  pagination: UpcomingEventsPagination;
+}

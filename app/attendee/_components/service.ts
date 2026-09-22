@@ -4,11 +4,23 @@ import toast from "react-hot-toast";
 import axiosInstance from "@/lib/axios";
 import { EventStatus } from "@/lib/constants/eventStatus";
 
-import { AttendeeEvent, EventRegistrationPayload, UpcomingEventsResponse } from "./types";
+import {
+  AttendeeEvent,
+  EventRegistrationPayload,
+  MyEventsResponse,
+  UpcomingEventsResponse,
+} from "./types";
 
 interface UseUpcomingEventsParams {
   status?: EventStatus | "ALL";
   searchText?: string;
+  limit?: number;
+}
+
+interface UseMyEventsParams {
+  searchText?: string;
+  status?: EventStatus | "ALL";
+  page?: number;
   limit?: number;
 }
 
@@ -38,6 +50,31 @@ export function useAttendeeUpcomingEvents({
         return lastPage.pagination.page + 1;
       }
       return undefined;
+    },
+  });
+
+}
+
+export function useAttendeeMyEvents({
+  searchText,
+  status,
+  page = 1,
+  limit = 12,
+}: UseMyEventsParams = {}) {
+
+  return useQuery<MyEventsResponse>({
+    queryKey: ["attendee-my-events", { searchText, status, page, limit }],
+    queryFn: async () => {
+      const response = await axiosInstance.get("/events/my-events", {
+        params: {
+          searchText: searchText?.trim() ? searchText.trim() : undefined,
+          status: status && status !== "ALL" ? status : undefined,
+          page,
+          limit,
+        },
+      });
+
+      return response.data?.data;
     },
   });
 
@@ -90,6 +127,7 @@ export function useRegisterForEvent(onSuccessCallback?: () => void) {
     onSuccess: (data, variables) => {
       toast.success("Successfully registered for the event!");
       queryClient.invalidateQueries({ queryKey: ["attendee-upcoming-events"] });
+      queryClient.invalidateQueries({ queryKey: ["attendee-my-events"] });
       queryClient.invalidateQueries({ queryKey: ["attendee-event-detail", variables.eventId] });
       queryClient.invalidateQueries({ queryKey: ["attendee-is-registered", variables.eventId] });
       if (onSuccessCallback) {

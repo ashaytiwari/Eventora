@@ -1,4 +1,4 @@
-import { Calendar, Users, LayoutDashboard, Building2 } from "lucide-react";
+import { Calendar, Users, LayoutDashboard, Building2, Ticket } from "lucide-react";
 
 import { UserRole } from "@/lib/constants";
 
@@ -45,7 +45,13 @@ export function getUserNavbarLinks(pathname: string, role: string) {
       name: "Events",
       href: "/attendee",
       icon: Calendar,
-      isActive: pathname === "/attendee"
+      isActive: pathname === "/attendee",
+    },
+    {
+      name: "My Events",
+      href: "/attendee/my-events",
+      icon: Ticket,
+      isActive: pathname === "/attendee/my-events",
     },
   ];
 

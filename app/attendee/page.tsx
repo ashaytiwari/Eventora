@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Sparkles, Loader2, Compass } from "lucide-react";
+import Link from "next/link";
+import { Sparkles, Loader2, Compass, Ticket, ArrowRight } from "lucide-react";
 
 import ProtectedRouteAuthGuard from "@/components/authGuards/ProtectedRouteAuthGuard";
 import { UserRole } from "@/lib/constants";
@@ -67,7 +68,7 @@ export default function AttendeeEventsPage() {
   function renderHeroHeader() {
 
     return (
-      <div className="relative overflow-hidden rounded-3xl bg-dark-100 border border-dark-200 p-6 md:p-8 shadow-2xl">
+      <div className="relative overflow-hidden rounded-3xl bg-dark-100 border border-dark-200 p-6 md:p-8 shadow-2xl flex flex-col md:flex-row md:items-center justify-between gap-6">
 
         <div className="absolute top-0 right-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl pointer-events-none" />
 
@@ -85,6 +86,19 @@ export default function AttendeeEventsPage() {
           <p className="text-sm text-light-100 leading-relaxed">
             Browse published and upcoming tech conferences, hackathons, and community meetups. Click any event to view full details and reserve your tickets.
           </p>
+
+        </div>
+
+        <div className="relative z-10 shrink-0">
+
+          <Link
+            href="/attendee/my-events"
+            className="inline-flex items-center gap-2.5 px-5 py-3 rounded-2xl text-xs font-bold text-black bg-primary hover:bg-primary/90 shadow-xl shadow-primary/20 transition-all active:scale-95 cursor-pointer"
+          >
+            <Ticket className="w-4 h-4" />
+            <span>My Registered Events</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
 
         </div>
 
