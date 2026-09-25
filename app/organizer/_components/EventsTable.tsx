@@ -131,7 +131,7 @@ const EventsTable = ({
     };
 
     const viewLinkAttributes = {
-      href: `/events/${event._id}`,
+      href: `/organizer/events/${event._id}`,
       className:
         "inline-flex items-center gap-1 text-xs text-light-200 hover:text-white transition-colors py-1 px-2.5 rounded-md hover:bg-dark-200/60 border border-transparent hover:border-white/10",
     };
@@ -146,7 +146,10 @@ const EventsTable = ({
       <tr key={event._id} {...rowAttributes}>
         <td className="py-4 px-5">
           <div className="flex items-center gap-3.5">
-            <div className="relative w-12 h-12 rounded-xl overflow-hidden bg-dark-200 border border-white/10 shrink-0">
+            <Link
+              href={`/organizer/events/${event._id}`}
+              className="relative w-12 h-12 rounded-xl overflow-hidden bg-dark-200 border border-white/10 shrink-0 block"
+            >
               {event.image ? (
                 <Image
                   src={event.image}
@@ -159,12 +162,14 @@ const EventsTable = ({
                   <Calendar className="w-5 h-5" />
                 </div>
               )}
-            </div>
+            </Link>
 
             <div className="flex flex-col gap-1 max-w-[280px]">
-              <span className="font-semibold text-white text-sm line-clamp-1 group-hover:text-primary transition-colors">
-                {event.title}
-              </span>
+              <Link href={`/organizer/events/${event._id}`}>
+                <span className="font-semibold text-white text-sm line-clamp-1 group-hover:text-primary transition-colors">
+                  {event.title}
+                </span>
+              </Link>
 
               {event.seoTags && event.seoTags.length > 0 && (
                 <div className="flex items-center gap-1.5 flex-wrap">

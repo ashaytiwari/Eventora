@@ -1,14 +1,33 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import toast from "react-hot-toast";
 
 import axiosInstance from "@/lib/axios";
+import { EventStatus } from "@/lib/constants/eventStatus";
 
-import { EventFilterStatus, IGetOrganizerEventsResponse } from "./types";
+import {
+  EventFilterStatus,
+  IEventDetail,
+  IGetEventRegistrationsResponse,
+  IGetOrganizerEventsResponse,
+} from "./types";
 
 interface UseOrganizerEventsParams {
   status: EventFilterStatus;
   searchText?: string;
   page: number;
   limit: number;
+}
+
+interface UseEventRegistrationsParams {
+  eventId?: string | null;
+  searchText?: string;
+  page?: number;
+  limit?: number;
+}
+
+interface UpdateEventStatusParams {
+  eventId: string;
+  status: EventStatus;
 }
 
 export function useOrganizerEvents({
@@ -54,7 +73,7 @@ export function useCreateEvent() {
 
 export function useEventById(id?: string | null) {
 
-  return useQuery({
+  return useQuery<IEventDetail>({
     queryKey: ["event-detail", id],
     queryFn: async () => {
       const response = await axiosInstance.get(`/events/${id}`);
@@ -77,6 +96,57 @@ export function useUpdateEvent(id?: string | null) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["organizer-events"] });
       queryClient.invalidateQueries({ queryKey: ["event-detail", id] });
+    },
+  });
+
+}
+
+export function useEventRegistrations({
+  eventId,
+  searchText,
+  page = 1,
+  limit = 10,
+}: UseEventRegistrationsParams) {
+
+  return useQuery<IGetEventRegistrationsResponse>({
+    queryKey: ["event-registrations", eventId, { searchText, page, limit }],
+    queryFn: async () => {
+      const response = await axiosInstance.get(`/events/${eventId}/registrations`, {
+        params: {
+          searchText: searchText?.trim() ? searchText.trim() : undefined,
+          page,
+          limit,
+        },
+      });
+
+      return response.data?.data;
+    },
+    enabled: Boolean(eventId),
+  });
+
+}
+
+export function useUpdateOrganizerEventStatus() {
+
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ eventId, status }: UpdateEventStatusParams) => {
+      const response = await axiosInstance.patch(`/events/${eventId}`, { status });
+      return response.data;
+    },
+    onSuccess: (data, variables) => {
+      toast.success(`Event status updated to ${variables.status}`);
+      queryClient.invalidateQueries({ queryKey: ["organizer-events"] });
+      queryClient.invalidateQueries({ queryKey: ["event-detail", variables.eventId] });
+      queryClient.invalidateQueries({ queryKey: ["event-registrations", variables.eventId] });
+    },
+    onError: (error: unknown) => {
+      const errorMsg =
+        error && typeof error === "object" && "response" in error
+          ? (error as { response?: { data?: { message?: string } } }).response?.data?.message
+          : "Failed to update event status";
+      toast.error(errorMsg || "Failed to update event status");
     },
   });
 
