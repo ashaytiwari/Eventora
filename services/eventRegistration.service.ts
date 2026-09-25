@@ -2,8 +2,9 @@ import { Types } from "mongoose";
 
 import { EventRegisterDto } from "@/app/api/events/register/eventRegister.dto";
 import { GetMyEventsSearchParamsDto } from "@/app/api/events/my-events/myEvents.dto";
+import { GetEventRegistrationsSearchParamsDto } from "@/app/api/events/[id]/registrations/eventRegistrations.dto";
 
-import { errorCodes, httpStatusCodes } from "@/lib/constants";
+import { errorCodes, httpStatusCodes, UserRole } from "@/lib/constants";
 import { EventStatus } from "@/lib/constants/eventStatus";
 import { APIError } from "@/lib/utils";
 
@@ -76,6 +77,52 @@ class EventRegistrationService {
         total,
         totalPages: Math.ceil(total / data.limit),
         hasNextPage: data.page < Math.ceil(total / data.limit),
+        hasPreviousPage: data.page > 1,
+      },
+    };
+
+  }
+
+  async getEventRegistrations(
+    eventId: string,
+    data: GetEventRegistrationsSearchParamsDto,
+    userId: string,
+    role: string
+  ) {
+
+    const event = await eventsRepository.findById(eventId);
+
+    if (!event) {
+      throw new APIError(errorCodes.EVENT_NOT_FOUND, httpStatusCodes.NOT_FOUND);
+    }
+
+    if (
+      role === UserRole.EVENT_ORGANIZER &&
+      event.organizerId.toString() !== userId
+    ) {
+      throw new APIError(errorCodes.FORBIDDEN, httpStatusCodes.FORBIDDEN);
+    }
+
+    const results = await eventRegistrationRepository.findEventRegistrations(
+      new Types.ObjectId(eventId),
+      data
+    );
+
+    const totalRegistrations = results?.totalRegistrations ?? 0;
+    const totalAttendees = results?.totalAttendees ?? 0;
+
+    return {
+      registrations: results?.data ?? [],
+      summary: {
+        totalRegistrations,
+        totalAttendees,
+      },
+      pagination: {
+        page: data.page,
+        limit: data.limit,
+        total: totalRegistrations,
+        totalPages: Math.ceil(totalRegistrations / data.limit),
+        hasNextPage: data.page < Math.ceil(totalRegistrations / data.limit),
         hasPreviousPage: data.page > 1,
       },
     };
