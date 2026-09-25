@@ -38,10 +38,27 @@ const Navbar = () => {
 
   function renderNavbarContent() {
 
+    const signInLinkAttributes = {
+      href: "/auth/signin",
+      className: "text-xs sm:text-sm font-medium text-light-100 hover:text-primary transition-colors",
+    };
+
+    const signUpLinkAttributes = {
+      href: "/auth/signup",
+      className: "text-xs font-semibold px-4 py-2 rounded-full bg-primary text-black hover:bg-primary/90 transition-all shadow-[0_0_20px_rgba(93,254,202,0.2)] hover:scale-105",
+    };
+
     return (
-      <ul>
-        <Link href="/">Home</Link>
-        <Link href="/auth/signup">Sign Up</Link>
+      <ul className="flex items-center gap-4 sm:gap-6 list-none">
+
+        <Link {...signInLinkAttributes}>
+          Sign In
+        </Link>
+
+        <Link {...signUpLinkAttributes}>
+          Get Started
+        </Link>
+
       </ul>
     );
 
